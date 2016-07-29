@@ -1,0 +1,39 @@
+	@font-face {
+		font-family: 'inconsolata';
+		src: url('font/inconsolata.woff') format('woff');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	html, body {
+		height: 100%;
+	}
+
+	body {
+		margin: 0px;
+		overflow: hidden;
+		font-family: Arial;
+	}
+
+	#preview {
+		position: absolute;
+		left: 50%;
+		top: 0px;
+		width: 50%;
+		height: 100%;
+	}
+
+
+	#editor {
+		position: absolute;
+		width: 50%;
+		height: 100%;
+	}
+
+	#editor .CodeMirror {
+		height: 100%;
+		font-family: inconsolata;
+		/*font-size: 16px;*/
+		/*background-color: #272822;*/
+		/*-webkit-transform: translateZ(0);*/
+	}

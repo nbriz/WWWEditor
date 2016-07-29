@@ -1,0 +1,79 @@
+
+/*
+
+	WWWEDitor custom CSS begins here
+
+*/
+
+.cm-s-bb-code-styles {
+	font-size: 1em;
+	line-height: 1.5em;
+	font-family: inconsolata, monospace;
+	letter-spacing: 0.3px;
+	word-spacing: 1px;
+	background: #272822;
+	color: #F8F8F2;
+}
+.cm-s-bb-code-styles .CodeMirror-lines {
+	padding: 8px 0;
+}
+.cm-s-bb-code-styles .CodeMirror-gutters {
+	box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.5);
+	background-color: #272822;
+	padding-right: 10px;
+	z-index: 3;
+	border: none;
+	margin-right:5px;
+}
+.cm-s-bb-code-styles div.CodeMirror-cursor {
+	border-left: 1px solid #F8F8F2;
+}
+.cm-s-bb-code-styles .CodeMirror-activeline-background {
+	background: #3E3D32;
+}
+.cm-s-bb-code-styles .CodeMirror-selected {
+	background: #49483E;
+}
+
+/* grey */
+.cm-s-bb-code-styles .cm-comment { color: #75715E;  }
+.cm-s-bb-code-styles .CodeMirror-linenumber { color: #75715E; }
+/* yellow */
+.cm-s-bb-code-styles .cm-string { color: #dad06f; } 
+/* purple */
+.cm-s-bb-code-styles .cm-number { color:#ae81f2; }
+.cm-s-bb-code-styles .cm-atom { color:#ae81f2; }
+/* blue */
+.cm-s-bb-code-styles .cm-property { color:#64d6eb; } 
+.cm-s-bb-code-styles .cm-string-2 { color:#64d6eb; }
+.cm-s-bb-code-styles .cm-keyword { color:#64d6eb; }
+/* white */
+.cm-s-bb-code-styles .cm-variable { color:#ffffff; }
+.cm-s-bb-code-styles .cm-variable-2 { color:#ffffff; }
+.cm-s-bb-code-styles .cm-variable-3 { color:#ffffff; }
+.cm-s-bb-code-styles .cm-meta { color: #ffffff; }
+/* red */
+.cm-s-bb-code-styles .cm-operator { color: #F92672; } 
+.cm-s-bb-code-styles .cm-tag { color: #F92672; }
+/* green */
+.cm-s-bb-code-styles .cm-attribute {color: #a6da27;} 
+.cm-s-bb-code-styles .cm-def { font-style: normal; color:#a6da27; } 
+
+
+.cm-s-bb-code-styles .CodeMirror-matchingbracket { 
+	color:#fff !important; 
+	padding-bottom: 3px;
+	border-bottom: 2px solid #a6da27;
+}
+
+.cm-s-bb-code-styles .CodeMirror-hints {
+	position: absolute;
+}
+
+/* for highlighting text :: w/html parser */
+.styled-background { 
+	/*background-color: #b4b200; */
+	background:rgba(255,0,0,0.3);
+	/*color:#fff;*/
+}

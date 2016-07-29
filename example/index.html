@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title> WWWEditor </title>
+
+	<link rel="stylesheet" href="../wwweditor.css">
+	<link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+	
+
+	<div id="preview"></div>
+	<div id="editor"></div>
+
+
+	<script src="../wwweditor.min.js"></script>
+	<script>
+
+		// HTML Example
+		
+		var edtr = new WWWEditor({
+			id: "editor",
+			preview: "preview",
+			type: "html",
+			friendlyErrors: true,
+			uiTip: true,
+			file:'samples/basic.html',
+			autoUpdate: true
+		});
+
+
+		// JavaScript Example
+		
+		// var edtr = new WWWEditor({
+		// 	id: "editor",
+		// 	preview: "preview",
+		// 	type: "js",
+		// 	friendlyErrors: true,
+		// 	file:'samples/basic.js',
+		// 	libs:['js/p5.min.js'],
+		// 	autoUpdate: true
+		// });
+		
+
+	</script>
+
+</body>
+</html>

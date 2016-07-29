@@ -1,0 +1,15 @@
+/*
+
+	this CSS file is a combination of 2 CSS files 
+
+	1. node_modules/codemirror/lib/codemirror.css
+	2. node_modules/codemirror/addon/hint/show-hint.css
+	3. src/bb-code-styles.css
+
+	the WWWEditor uses the super rad CodeMirror (http://codemirror.net/) project
+	the first CSS file is for basic CodeMirror stuff
+	the second is for styling the auto-complete functionality
+	the bb-code-styles.css is custom syntax highlighting ( inspired by sublime's monokai theme )
+
+
+*/

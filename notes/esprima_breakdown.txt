@@ -1,0 +1,298 @@
+	 _______________________________
+	|								|
+	|		ESPRIMA JS BREAKDOWN 	|
+	|_______________________________|
+
+
+. INTRO
+. NODE BREAKDOWNS
+.. EXPRESSION STATMENT / BREAKDOWN 
+.. VARIABLE DECLARATION
+.. FUNCTION DELCARATION
+.. CONDITIONAL EXPRESSION
+.. LOOP
+.. ADDITIONAL CONTROL FLOW
+
+----------------------------------------------------------------------
+------ TODO: 													------
+------		switch CallExpression 								------
+------		exceptions: trystatment, catchclaus, throwstatement	------
+------		withstatement ? 									------
+------		debuggerstatement ( likely not gonna use it ) 		------
+------		regexpliteral										------
+----------------------------------------------------------------------
+------ also see: 												------
+------ https://github.com/estree/estree/blob/master/spec.md 	------
+----------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   		INTRODUCITON						 					  ||
+\\ ------------------------------------------------------------------------------ //
+
+
+esprima.parse( editor.getValue() );
+
+			... returns ...
+							{ type: "Program", body:Array[], sourceType:"script" }
+												|
+												|
+	 								an array of node objects
+									properties vary depending on the node.type
+									refer to the various breakdowns below 
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   WHEN NODE TYPE IS AN EXPRESSION STATEMENT 					  ||
+\\ ------------------------------------------------------------------------------ //
+
+
+[ex] left.name
+	 |    
+	 |	   
+	 x  =  100; --- right.value
+	 	|
+	 	|
+	 operator
+
+
+{NODE}	 ___{expression}___  ___ {left} ____ name	( of var )
+		|					|			\___ type	"Identifier"
+		|					|		
+		|					|___ operator___ (=,+,>,etc.)	
+		|					|
+		|					|___ {right}____ type	
+		|					|			\___ raw	
+		|					|			 \__ value		
+		|					|			  \_ arguments
+		|					|			   \ ... ( see breakdown below )
+		|					|
+		|					|___ type __ ( of expression )
+		|
+		|
+		|____ type 	_______ "ExpressionStatement"
+
+
+
+ // --------------- EXPRESSION BREAKDOWN ----------------------------------------------------------
+ //
+ // breakdown for an expression object, will have different params based on it's "type"
+ // these are objects that represent expressions in statements 
+ // 
+ // ie. the stuff to the right of the equal sign ( {right}, {init} ) 
+ // or a function call ( "CallExpression" )
+
+
+  _______________________
+ / expression 			 \__________________________________________________________________________________
+|																											|	
+| type				| raw		| value 	| name 		| arguments | elements 	| properties	| callee	|	
+|-------------------|-----------|-----------|-----------|-----------|-----------|---------------|-----------|
+| Identifier		| ...	 	| ...	 	| (string)	| ...	 	| ...	 	| ...	 		| ...	 	|	
+| Literal			| (string) 	| (value)	| ...		| ...	 	| ...	 	| ...			| ...	 	|	
+|					|			|			|			|			|			|				|			|	
+| NewExpression 	| ...	 	| ...	 	| ...	 	| [{init}] 	| ...	 	| ...	 		|{name,type}|	
+| CallExpression	| ...	 	| ...	 	| ...		| [Array] 	| ...	 	| ...	 		|{name,type}| *depends on type	
+| ArrayExpression 	| ...	 	| ...	 	| ...	 	| ...	 	| [{init}] 	| ...	 		| ...	 	|	
+| ObjectExpression 	| ...	 	| ...	 	| ...	 	| ...	 	| ...	 	| [{prop}] 		| ...	 	|	
+|																											|
+| TODO:																										|
+| MemberExpression		---- object:{name,type} property:{name,type} computed:boolean						|
+| SequenceExpression	---- expressions:[array of expressions] ( for comma separated expressions )			|
+|																											|
+|																											|
+| FunctionExpression >> different set of accompanying props, see Function Declaration Flow Chart (below)	|
+| ConditionalExpression >> ...	see Conditional Expression Flow Chart (below) 								|
+|___________________________________________________________________________________________________________|			
+
+
+MemberExpression computed, object {name,type} property {name,type}
+
+  ____________________________
+ / property (obj expressions) \_____________________________________________________________
+|																							|	
+| key					| kind 			| type  	| value 								| 			
+|-----------------------|---------------|-----------|---------------------------------------|
+| Literal/Identifer  	| init|get|set 	| "Property"| {init} | {body}						|
+| ( see expression )	|				|			| ( see expression && function chart )	|
+|___________________________________________________________________________________________|
+
+
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   WHEN NODE TYPE IS A VARIABLE DECLARATION 					  ||
+\\ ------------------------------------------------------------------------------ //
+
+[ex] kind id.name
+	 |    |
+	 |	  | 	 
+	var   x  =  100; --- init.value
+
+
+{NODE}	 ___ [declarations]	 ___ {id} 	____ name	( of var )
+		|					|			\___ type	"Identifier"
+		|					|
+		|					|___ {init} ____ type	
+		|					|			\___ raw	
+		|					|			 \__ value		
+		|					|			  \_ arguments
+		|					|			   \ ... ( see expression breakdown chart below )
+		|					|				     ( could be an expression statement )
+		|					|				     ( could be a function statement, etc )
+		|					|				 
+		|					|				
+		|					|
+		|					|___ type __ "VariableDeclarator"
+		|
+		|____ kind	_______ "var|const|let"
+		|____ type 	_______ "VariableDeclaration"
+
+
+	// note: different from type:"VariableDeclarator", 
+		which has id && init instead of declarations && kind
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   WHEN NODE TYPE IS A FUNCTION DECLARATION 					  ||
+\\ ------------------------------------------------------------------------------ //
+	// note: this node could also be in a variable declaraion's {init} if: var x = function 
+
+[ex]         id.name
+			  _|_
+			 |   |
+
+	function jump(){	__
+		y++;			  |_ body
+	}					__|
+
+
+{NODE}	 ___ {body}_________ ___ [body] ( array of all the nodes in the function block )
+		|					|			
+		|					|____ type ( of statment, likely: "BlockStatement" )
+		|
+        |___ [defaults]_____ (array) ( param defaults )
+        |___ expression_____ boolean
+        |___ generator _____ boolean
+        |___ id ____________ {name,type} | null ( in var dec )
+        |___ [params] ______ (array)
+        |
+        |
+        |___ type __________ "FunctionDeclaration" | "FunctionExpression" ( in var dec )
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   WHEN NODE TYPE IS A CONDITIONAL EXPRESSION 					  ||
+\\ ------------------------------------------------------------------------------ //		  
+
+[ex]
+	test.left.name
+	    |
+	    | test.operator
+	    | |
+	    | | test.right.value
+	    | | |	
+	if( x > 10 ){		____
+		alert('hi!');		|__ consequent.body
+	}					____|
+
+{NODE}	 ___ {test}_________ ___ {left}		( see expression statement 
+		|					 \__ operator 		flow chart above )
+		|					  \_ {right}
+		|					   \ type    
+		|
+		|
+        |___ {consequent} __ type __ "Literal" | "BlockStatement"
+        |				 |__ [body] 		( if block statement, array of nodes in block )
+        |				 |__ {raw,value} 	( if literal )
+        |
+        |___ {alternate} ___ {NODE} | null 	( depends on if there's an else or not)
+        |
+        |___ type __________ "IfStatement" | "ConditionalExpression" ( in var dec )
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   			WHEN NODE TYPE IS A LOOP 							  ||
+\\ ------------------------------------------------------------------------------ //
+
+[ex]		
+		{init}	{test} {update}
+		__|___    _|_   _|_
+	   |      |  |   | |   |
+	   							____
+	for(var i=0; i<10; i++ ){ 		|
+		console.log( i * 2 ); 	  	|---- {body}
+	}							____|
+
+
+
+{NODE}	 ___ {test}_________ ___ {left}		( see expression statement 
+		|					 \__ operator 		flow chart above )
+		|					  \_ {right}
+		|					   \ type    
+		|
+		|___ {body}_________ ___ [body] ( array of all the nodes in the block )
+		|					|			
+		|					|____ type ( of statment, likely: "BlockStatement" )
+        |
+        |___ type __________ "WhileStatement" | "ForStatement" | "DoWhileStatement" | "ForInStatement"(see * bellow)
+        | 
+        ( if type is ForStatment )
+        |
+        |___ {init} ___________ [declarations]____ ( array of dec nodes {id:,init:,type:} 
+        |				    \__ kind					see variable declarations above )
+        |				     \_ type
+        |
+        |___ {update} _________ type ________ "UpdateExpression" | "AssignmentExpression"
+        					\
+        					 \_ ( the rest of update's properties 
+        							depends on type, see chart below )
+
+  _______________________
+ / update   			 \__________________________________________________________________
+|																							|
+| type					| argument	| prefix 	| operator 	| left 		| right 			|	
+|-----------------------|-----------|-----------|-----------|-----------|-------------------|
+| UpdateExpression		|{name,type}| boolean	| ++,--		|...		| ...				|    	
+| AssignmentExpression	| ...		| ...		| +=,-=,etc	|{name,type}| {raw,type,value}	|   	
+|___________________________________________________________________________________________|			
+
+
+* when: for ( ... in ... )
+-------------------------------------------
+    type: "ForInStatement";
+    left: VariableDeclaration |  Pattern;
+    right: Expression;
+    body: array as per usual
+--------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------ \\
+|| 				   			additional Control Flow 							  ||
+\\ ------------------------------------------------------------------------------ //
+
+  __________________________
+ / control flow statements  \___________________________
+|														|
+| type				| argument	| label 	| body	 	|
+|-------------------|-----------|-----------|-----------|
+| ReturnStatement	|expression | ...		| ...		|		   	
+| LabeledStatement	| ...		|identifier | statement |	
+| BreakStatement	| ... 		|identifier | ...		|
+| ContinueStatement	| ...		|identifier | ... 		|
+|_______________________________________________________|			
+
+
+

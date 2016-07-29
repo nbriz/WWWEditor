@@ -1,0 +1,28 @@
+{
+  "name": "wwweditor",
+  "version": "1.0.0",
+  "description": "a wwweb based realtime editor, with friendly errors && helpers",
+  "main": "wwweditor.min.js",
+  "scripts": {
+    "env": "env",
+    "lint": "jshint --reporter=node_modules/jshint-stylish --exclude=src/bb-code-styles.css src/*; exit 0",
+    "prebuild": "npm run lint",
+    "build": "browserify src/editor-main.js | uglifyjs > wwweditor.min.js",
+    "postbuild" : "cat notes/css-info.txt node_modules/codemirror/lib/codemirror.css node_modules/codemirror/addon/hint/show-hint.css src/bb-code-styles.css > wwweditor.css",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon -w src -x 'npm run build'"
+  },
+  "author": "Nick Briz",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "browserify": "^13.0.1",
+    "jshint": "^2.9.2",
+    "jshint-stylish": "^2.2.0",
+    "nodemon": "^1.9.2",
+    "uglify-js": "^2.6.2"
+  },
+  "dependencies": {
+    "codemirror": "^5.15.2",
+    "esprima": "^2.7.2"
+  }
+}
