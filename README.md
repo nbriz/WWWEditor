@@ -25,7 +25,7 @@ then create an instanceof the WWWEditor
 		id: "editor"
 	});
 
-####config object
+###config object
 
 **id:** *[string]* the id value of the element u want to stick the WWWEditor in. this is the only required config parameter, but there's lots of additional optional parameters u can pass to the config object
 
@@ -63,11 +63,11 @@ here's an example of a more complicated instanceof WWWEditor:
 
 ##API
 
-####url parameters
+###url parameters
 
 if no **file** config property is set, the WWWEditor looks to see if there's a file url parameter. for example, if ur page is *http://nickbriz.com/cool-editor/index.html* then u can autoload a file into the WWWEditor instance by doing something like: *http://nickbriz.com/cool-editor/index.html?file=samples/basic.js* 
 
-####public methods
+###public methods
 
 `.update()` when the **autoUpdate** config parameter is set to false, the WWWEditor's update method can be called manually to update the preview
 
@@ -85,12 +85,12 @@ run `npm install` in the root directory to download the dependencies
 to build the library u can run `npm run build`, which will lint + create 2 files, the wwweditor.min.js && the wwweditor.css. best thing to do while developing is run the watch script: `npm run watch`
 that will run lint/build as u save ur changes. 
 
-#### dependencies
+### dependencies
 
 **codemirror:** amazing project upon which this WWWEditor is built!
 **esprima:** used for some of the javascript parsing
 
-#### dev dependencies
+### dev dependencies
 
 **browserify:** for compiling the build
 **jshint:** for linting
@@ -99,11 +99,11 @@ that will run lint/build as u save ur changes.
 **uglify-js:** for minifying 
 
 ## thnx
-#### ...for the ideas
+### ...for the ideas
 first && formost, my hypertext heros [Ted Nelson](http://ted.hyperland.com/) && [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/) ( b/c obvious reasons ) [Jon Duckett](http://www.htmlandcssbook.com/) ( for the friendly style inspiration ), Jon Skinner ( for making the best code-editor [ [sublime](http://www.sublimetext.com/) ] from which i took lots of inspiration ), [Alan Kay](https://en.wikipedia.org/wiki/Alan_Kay) && [Adele Goldberg](https://en.wikipedia.org/wiki/Adele_Goldberg_%28computer_scientist%29) ( who's work in general [Smalltalk specifically] serves as the philosophical foundation for this whole thing ), [Bret Victor](http://worrydream.com/LearnableProgramming/) ( for reminding us that Kay/Goldberg's legacy needed to be carried on && built on ) && [Patricio Gonzalez Vivo](http://www.patriciogonzalezvivo.com/about.php) ( whose [GLSLShaderEditor](https://github.com/patriciogonzalezvivo/glslEditor) proved to me that Bret Victors ideas could actually be xecuted )
 
 
-#### ...for the code
+### ...for the code
 the jQuery folks who worked on [esprima](http://esprima.org/), the folks at [CodeMirror](http://codemirror.net/),  [John Resig](http://ejohn.org/) where i got some HTML-Parsing inspiration from ( && whose regex magix i copy+pasted ) + all the snippets i copied pasted from stack-overflow ( links to these accompany each snippet in the src code ) [Mozilla's Developer Network](https://developer.mozilla.org/en-US/docs/Web/HTML) && [W3CSchools](http://www.w3schools.com/) ( who's nfo i scrapped && link bax to )
 
 
