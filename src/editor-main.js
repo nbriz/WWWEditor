@@ -25,7 +25,8 @@ function WWWEditor( config ){
 		{ param: config.uiTip, name:'uiTip', type:['undefined','boolean'] },
 		{ param: config.supressRefErr, name:'supressRefErr', type:['undefined','boolean'] },
 		{ param: config.autoUpdate, name:'autoUpdate', type:['undefined','boolean'] },
-		{ param: config.updateDelay, name:'updateDelay', type:['undefined','number'] }
+		{ param: config.updateDelay, name:'updateDelay', type:['undefined','number'] },
+		{ param: config.modalCSS, name:'modalCSS', type:['undefined','object'] }
 	]);
 
 
@@ -46,6 +47,7 @@ function WWWEditor( config ){
 	this.uiTip 			= (typeof config.uiTip==="undefined") ? false : config.uiTip;
 	this.supressRefErr 	= (typeof config.supressRefErr==="undefined") ? false : config.supressRefErr; // js only
 	this.autoUpdate 	= (typeof config.autoUpdate ==="undefined") ? true : config.autoUpdate;
+	this.modalCSS 		= (typeof config.modalCSS==="undefined") ? false : config.modalCSS;
 	this.updateDelay 	= config.updateDelay || 500;
 
 	this.updateLoop = null; // the update loop ( setTimeout )
@@ -390,10 +392,12 @@ WWWEditor.prototype._htmlNfoWidget = function( lineNumber, message ){
 				// remove previous modal ( if it exists )
 				if( self.modal ) self.modal = self.modal.remove();			
 				// create new modal
+				var mcss = (self.modalCSS) ? self.modalCSS : undefined;
 				self.modal = new self._modal({
 					html: message,
 					type: "help",
-					editor: self
+					editor: self,
+					css: mcss
 				});
 			};
 			nfoHelp.clear = function(){
@@ -434,10 +438,12 @@ WWWEditor.prototype._htmlErrWidget = function( lineNumber, message ){
 			// remove previous modal
 			if( self.modal ) self.modal = self.modal.remove();			
 			// create new modal 
+			var mcss = (self.modalCSS) ? self.modalCSS : undefined;
 			self.modal = new self._modal({
 				html: message,
 				type: "err",
-				editor: self
+				editor: self,
+				css: mcss
 			});
 			if( self.firstMessage ){
 				self.firstMessage = false;

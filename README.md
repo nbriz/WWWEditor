@@ -47,6 +47,7 @@ then create an instanceof the WWWEditor
 
 **uitTip:** *[boolean]* when set to true, small tips ( pertaining to how WWWEditor worx ) will appear at the bottom of the editor when applicable *default:false*
 
+**modalCSS:** *[object]* when u click the WWWEditor's gutter widgets an info modal will open ( sometimes these are reference modals, other times they are error messages ). the modal's default CSS can be overridden by passing a CSS object where the property is a DOM style property ( color, fontFamily, etc. ) && the value is a CSS value string ( "#ff0000", "san-serif", etc. )
 
 here's an example of a more complicated instanceof WWWEditor:
 
