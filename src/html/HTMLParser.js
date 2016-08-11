@@ -33,7 +33,8 @@ module.exports = (function(){
 		checks for consistency <DIV> vs <div> 
 
 		---- what i've got left TO-DO ------------------------
-		allow for style/script tags && parse differently? 
+		at the moment i'm ignoring all script/style tags
+		... maybe parse those differently? 
 
 
     */
@@ -320,6 +321,22 @@ module.exports = (function(){
 	// ---------------------------------------------------------------------------------------
 
 
+	HTMLParser.prototype.removeCSSandJS = function( html ) {
+		// remove all JS
+		while (html.indexOf("\<script") >= 0) {
+			var jsStart = html.indexOf("\<script");
+			var jsEnd = html.indexOf("\<\/script>");
+			html = html.substring(0, jsStart) + html.substring(jsEnd+9, html.length);
+		}
+		// remove all CSS
+		while (html.indexOf("\<style") >= 0) {
+			var cssStart = html.indexOf("\<style");
+			var cssEnd = html.indexOf("\<\/style>");
+			html = html.substring(0, cssStart) + html.substring(cssEnd+8, html.length);
+		}
+		return html;
+	};
+
 	HTMLParser.prototype.checkDoctype = function( html ){
 		var code = html.toLowerCase();
 		if(  code.indexOf('<!doctype html>')!==0 ){
@@ -400,8 +417,7 @@ module.exports = (function(){
 			if(otherEnd2>=0)	return html.substring(otherEnd2);
 			else 			return ""; // finished
 
-		} 
-		else if( type=="start-tag" ){
+		} else if( type=="start-tag" ){
 
 			// console.log(this.ctStack, html.match( this.startTag )[0] ); 
 
@@ -417,6 +433,7 @@ module.exports = (function(){
 			var m2 = html.match( this.endTag ); 	// [0]=entire tag, [1]=tag name
 											// if closing tag checks out, remove it
 			if( this.checkClosingTag(m2, html) ) return html.substring( m2[0].length );
+		
 		}
 
 	};
@@ -431,6 +448,9 @@ module.exports = (function(){
 		this.errorObj = null;
 		this.caseConsistency = null; 
 		this.closeConsistency = null;
+
+		// remove all js && css b4 parsing
+		html = this.removeCSSandJS(html);
 
 		// check for doctype first && foremost
 		html = this.checkDoctype(html); 
