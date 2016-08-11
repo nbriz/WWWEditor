@@ -207,7 +207,7 @@ WWWEditor.prototype._createEditor = function( val ){
 		// clear all previous helper widgets
 		self._clearWidgets("help");
 		// if html mode...
-		if( self.mode == "htmlmixed" && self.friendlyErrors ){
+		if( self.mode == "htmlmixed" ){
 			self._htmlNfo(); // place gutter helper widgets
 			self._hack4hint(); // adds xtra space in opening tag for attribute hints
 		}
