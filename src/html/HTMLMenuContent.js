@@ -1,10 +1,10 @@
-module.exports = function( word ){
+module.exports = function( word, preChar ){
 
     var elementsDict = require('./html-elements-dictionary');
     var attributesDict = require('./html-attributes-dictionary');
     var status, nfo, url, els, content;
 
-    if( elementsDict.hasOwnProperty( word ) ){
+    if( elementsDict.hasOwnProperty( word ) && (preChar=="<"||preChar=="</")  ){
 
         status = elementsDict[word].status;
         nfo = elementsDict[word].nfo;

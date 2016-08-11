@@ -428,7 +428,11 @@ WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes posi
 		var mode = this.editor.getModeAt( pos.head ).name;
 		if( mode=="javascript" || mode=="css") return;
 
-		var content = this._getHTMLnfo( wrd );
+		// get char before word ( looking for "<" or "</" )
+		var pcPos = this.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch-1});
+		var preChar = this.editor.getRange( pcPos.anchor, pcPos.head );
+
+		var content = this._getHTMLnfo( wrd, preChar );
 		// create gutter widget
 		this._htmlNfoWidget( pos.head.line, content );
 		// if modal is present, remove it
