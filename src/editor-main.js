@@ -199,7 +199,10 @@ WWWEditor.prototype._createEditor = function( val ){
 	} else {
 
 		this.editor.on( 'change', function() {
-			self.editor.showHint(); // >> self.hinter
+			// show html-hinter only if mode is html
+			var mode = this.editor.getModeAt(this.editor.getCursor()).name;
+			if( mode=="xml") // vs "javascript" or "css"			
+				this.editor.showHint(); // >> self.hinter
 		});
 	}	
 
@@ -273,8 +276,12 @@ WWWEditor.prototype.update = function(){
 	else 
 		this._previewFrame( " !!! ERROR: (>_<) OH NO !!! " );
 
-	if( this.autoUpdate )
-		this.editor.showHint(); // >> self.hinter
+	if( this.autoUpdate ){
+		// show html-hinter only if mode is html
+		var mode = this.editor.getModeAt(this.editor.getCursor()).name;
+		if( mode=="xml") // vs "javascript" or "css"			
+			this.editor.showHint(); // >> self.hinter
+	}
 
 };
 

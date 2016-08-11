@@ -1,12 +1,11 @@
 module.exports = function(cm, options){
 	
-
 	var elementsDict = require('./html-elements-dictionary');
 	var attributesDict = require('./html-attributes-dictionary');
 
 	var cursor = cm.getCursor(), line = cm.getLine(cursor.line);
 	var start = cursor.ch, end = cursor.ch;
-	
+
 	while (start && ( /\w/.test(line.charAt(start-1)) || line.charAt(start-1)=="<" ) ) --start;
 	while (end < line.length && /\w/.test(line.charAt(end))) ++end;
 
