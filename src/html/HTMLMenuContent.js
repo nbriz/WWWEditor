@@ -4,7 +4,8 @@ module.exports = function( word, preChar ){
     var attributesDict = require('./html-attributes-dictionary');
     var status, nfo, url, els, content;
 
-    if( elementsDict.hasOwnProperty( word ) && (preChar=="<"||preChar=="</")  ){
+    if( elementsDict.hasOwnProperty( word ) && 
+        (preChar=="<"||preChar=="</"||preChar=="><"||preChar=="></")  ){
 
         status = elementsDict[word].status;
         nfo = elementsDict[word].nfo;
