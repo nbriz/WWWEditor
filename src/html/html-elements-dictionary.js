@@ -2,6 +2,7 @@
 	scrapped from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 */
 module.exports = {
+	doctype:{ singleton:true, status:[], nfo:"The <!DOCTYPE> declaration is not an HTML tag; it is an instruction to the web browser about what version of HTML the page is written in.", url:"http://www.w3schools.com/tags/tag_doctype.asp" },
 	a:{ singleton:false, status:[], nfo:"The HTML Anchor Element (<a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page.", url:"https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a"},
 	abbr:{ singleton:false, status:[], nfo:"The HTML <abbr> element (or HTML Abbreviation Element) represents an abbreviation and optionally provides a full description for it. If present, the title attribute must contain this full description and nothing else.", url:"https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr"},
 	acronym:{ singleton:false, status:["obsolete"], nfo:"The HTML Acronym Element (<acronym>) allows authors to clearly indicate a sequence of characters that compose an acronym or abbreviation for a word.", url:"https://developer.mozilla.org/en-US/docs/Web/HTML/Element/acronym"},

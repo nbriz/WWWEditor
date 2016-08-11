@@ -4,8 +4,10 @@ module.exports = function( word, preChar ){
     var attributesDict = require('./html-attributes-dictionary');
     var status, nfo, url, els, content;
 
+    word = word.toLowerCase();
+
     if( elementsDict.hasOwnProperty( word ) && 
-        (preChar=="<"||preChar=="</"||preChar=="><"||preChar=="></")  ){
+        (preChar=="<"||preChar=="</"||preChar=="><"||preChar=="></"||preChar=="<!")  ){
 
         status = elementsDict[word].status;
         nfo = elementsDict[word].nfo;

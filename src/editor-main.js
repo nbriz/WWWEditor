@@ -598,29 +598,13 @@ window.WWWEditor = WWWEditor;
 // add function names to autocomplete in 
 // find a way to tell if someone meant to write a sting? ie. when referr
 
-// HTML
-// lingo list / lingo info 
-// video errors ( point to <tag> text overlay, rather than speaking it )
-// make nfo modal for doctype ... maybe link to video?
-// info modal
-//  _____________________________________________
-// | 
-// |	marquee [depreciated]
-// |	-------
-// |	this is the description of the marquee
-// |	tag. it goes here.
-// |	
-// |	re:videos
-// |	1....
-// |	2....
-// |	
-// | 	[ code snippets ][ website ]
-// |	
-// drag && drop snippets ( set of elements, rather than single elements )
-// class= autocomplete w/existing classes
-// id= autocomplete w/existing ids 
-// css: ^ same sorta autocomplete on the other end?
 
+// HTML
+// make nfo modal for doctype ... maybe link to video?
+// once parsing css && js:
+// 	class= autocomplete w/existing classes
+// 	id= autocomplete w/existing ids 
+// 	css: ^ same sorta autocomplete on the other end?
 
 
 // CSS
