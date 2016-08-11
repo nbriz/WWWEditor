@@ -417,6 +417,10 @@ WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes posi
 		if( wrd == ">" || wrd == "/>") 
 			wrd = this.editor.getRange( pos.anchor, {line:pos.head.line,ch:pos.head.ch-1});
 
+		// exit if wrd is inside js or css
+		var mode = this.editor.getModeAt( pos.head ).name;
+		if( mode=="javascript" || mode=="css") return;
+
 		var content = this._getHTMLnfo( wrd );
 		// create gutter widget
 		this._htmlNfoWidget( pos.head.line, content );
@@ -610,3 +614,4 @@ window.WWWEditor = WWWEditor;
 
 // CSS
 // widgets ( color, position )
+// info widgets for stuff inside style/script tags ( currently being ignored, in _htmlNfo )
