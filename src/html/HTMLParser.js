@@ -90,8 +90,12 @@ module.exports = (function(){
 				// edge cases
 				if( formatted.indexOf('attribute in HTML')>=0 ) // if from "not a real attribute"
 					lnk = '<a style="color:'+this.green+';" target="_blank">'+arg+'</a>';
-				else if( arguments[i] instanceof Array ) // if elements array list
-					lnk = '<a style="color:'+this.red+';" target="_blank">'+arg+'</a>';
+				else if( arguments[i] instanceof Array ){ // if elements array list					
+					var af = [];
+					for (var idx = 0; idx < arguments[i].length; idx++) 
+						af[idx]=arguments[i][idx].replace(/</g,'&lt;').replace(/>/g,'&gt;');
+					lnk = '<a style="color:'+this.red+';" target="_blank">'+af+'</a>';
+				}
 				else // otherwise assume its a tag...
 					lnk = '<a style="color:'+this.red+';" target="_blank">&lt;'+arg+'&gt;</a>';
 				formatted = formatted.replace('${'+(i-1)+'}', lnk );
