@@ -340,6 +340,14 @@ WWWEditor.prototype._previewFrame = function( value ){
 };
 
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\
+|								|
+|				CSS 			|
+|								|
+\* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+WWWEditor.prototype._getCSSnfo= require('./css/CSSMenuContent');	// for nfo modal content
+
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\
 |								|
@@ -417,6 +425,14 @@ WWWEditor.prototype._htmlNfoWidget = function( lineNumber, message ){
 };
 
 WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes positions
+	var self = this;
+	
+	function getWrd( offset ){
+		var getPosition = self.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch+offset});
+		var getWord 	= self.editor.getRange( getPosition.anchor, getPosition.head );
+		return getWord;
+	}
+
 	if( this.errWidgets.length <= 0 ){
 		// if there are no errors present, create nfo widget
 		var pos = this.editor.findWordAt(this.editor.getCursor());
@@ -431,17 +447,25 @@ WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes posi
 			content = "sorry js coming soon";
 			return;
 		} else if( mode=="css" ){
-			content = "sorry CSS coming soon";
-			return;
+			// get char after ( looking for : to confirm it's a property )
+			var afChar = getWrd(wrd.length);
+			if( afChar==="-" ){ // in case it's a prop like: background-color
+				afChar = getWrd(wrd.length+1);
+				wrd = wrd +"-"+afChar;
+				afChar = getWrd(wrd.length);
+			}
+			if( afChar[0]===" " ) afChar = getWrd(wrd.length+afChar.length);
+			content = this._getCSSnfo( wrd, afChar );
+		
+		} else { // html
+			// get char before word ( looking for "<" or "</" )
+			var preChar = getWrd(-1);
+			content = this._getHTMLnfo( wrd, preChar );
 		}
-
-		// get char before word ( looking for "<" or "</" )
-		var pcPos = this.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch-1});
-		var preChar = this.editor.getRange( pcPos.anchor, pcPos.head );
-
-		content = this._getHTMLnfo( wrd, preChar );
+		
 		// create gutter widget
-		this._htmlNfoWidget( pos.head.line, content );
+		this._htmlNfoWidget( pos.head.line, content ); // this is also CSS Nfo Widget
+
 		// if modal is present, remove it
 		if( this.modal ) {
 			this.modal = this.modal.remove();
