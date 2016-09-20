@@ -1,62 +1,87 @@
 module.exports = function(cm, options){
+
+	// HANDLES MIXED HTML / CSS / JS HINTING
+
+	var cursor, line, start, end, alone, word, list;
+	var mode = cm.getModeAt(cm.getCursor()).name;
+
+
+	if( mode == "javascript" ){ // --------------------------------------------------------------- JAVASCRIPT
+
+		var jsHinter = options.jshinter;
+		return jsHinter( cm, options );
+
+	}
 	
-	var elementsDict = require('./html-elements-dictionary');
-	var attributesDict = require('./html-attributes-dictionary');
+	else if( mode == "css" ){ // ----------------------------------------------------------------- CSS
 
-	var cursor = cm.getCursor(), line = cm.getLine(cursor.line);
-	var start = cursor.ch, end = cursor.ch;
+		var cssHinter = options.csshinter;
+		return cssHinter( cm, options );
+		
+	}
 
-	while (start && ( /\w/.test(line.charAt(start-1)) || line.charAt(start-1)=="<" ) ) --start;
-	while (end < line.length && /\w/.test(line.charAt(end))) ++end;
+	else if( mode == "xml" ){ // ----------------------------------------------------------------- HTML 
 
-	var alone = (line.slice(end,end+1)==="" || line.slice(end,end+1)===" " ) ? true : false;
-	var word = line.slice(start, end).toLowerCase(); // word being typed
+		var elementsDict = require('./html-elements-dictionary');
+		var attributesDict = require('./html-attributes-dictionary');
 
-	if( word.length > 0 && alone ){
+		cursor = cm.getCursor();
+		line = cm.getLine(cursor.line);
+		start = cursor.ch;
+		end = cursor.ch;
 
-		var list = [];
-		var ctxt; // the text that should show up on autocomplete
-			
-		// are we writing an element name?
-		if( word[0]=="<" || word.indexOf("</")===0 ){
+		while (start && ( /\w/.test(line.charAt(start-1)) || line.charAt(start-1)=="<" ) ) --start;
+		while (end < line.length && /\w/.test(line.charAt(end))) ++end;
 
-			word = word.substring(1); // remove < from word
+		alone = (line.slice(end,end+1)==="" || line.slice(end,end+1)===" " ) ? true : false;
+		word = line.slice(start, end).toLowerCase(); // word being typed
 
-			for(var t in elementsDict ){
-				// if word is in an element, add that element to the list
-				if( t.indexOf(word)>=0 ){
-					ctxt = (elementsDict[t].singleton) ? "<"+t+">" : "<"+t+"></"+t+">";
-					list.push({ text:ctxt, displayText:t });					
-				} 
+		if( word.length > 0 && alone ){
+
+			list = [];
+			var ctxt; // the text that should show up on autocomplete
+				
+			// are we writing an element name?
+			if( word[0]=="<" || word.indexOf("</")===0 ){
+
+				word = word.substring(1); // remove < from word
+
+				for(var t in elementsDict ){
+					// if word is in an element, add that element to the list
+					if( t.indexOf(word)>=0 ){
+						ctxt = (elementsDict[t].singleton) ? "<"+t+">" : "<"+t+"></"+t+">";
+						list.push({ text:ctxt, displayText:t });					
+					} 
+				}
+				
+				return { 
+					list:list,
+					from: { line: cursor.line, ch: start },
+					to: { line: cursor.line, ch: (word.length)+start+1 }
+				};
+		
+			} 
+			// are we writing an attribute name?
+			else if( 	line.indexOf("<")>=0 && 
+						line.indexOf("<")<line.indexOf(word) && 
+						( line.indexOf(">")<0||line.indexOf(">")>line.indexOf(word) ) 
+			){ 			
+
+				for(var a in attributesDict ) if( a.indexOf(word)>=0 ) list.push({ text:a+'=""', displayText:a });
+				return { 
+					list:list,
+					from: { line: cursor.line, ch: start },
+					to: { line: cursor.line, ch: word.length+start }
+				};	
 			}
-			
-			return { 
-				list:list,
-				from: { line: cursor.line, ch: start },
-				to: { line: cursor.line, ch: (word.length)+start+1 }
-			};
-	
+
+			// return the autocomplete list && coordinates
+			// return { 
+			// 	list:list,
+			// 	from: { line: cursor.line, ch: start },
+			// 	to: { line: cursor.line, ch: word.length+start }
+			// };	
+
 		} 
-		// are we writing an attribute name?
-		else if( 	line.indexOf("<")>=0 && 
-					line.indexOf("<")<line.indexOf(word) && 
-					( line.indexOf(">")<0||line.indexOf(">")>line.indexOf(word) ) 
-		){ 			
-
-			for(var a in attributesDict ) if( a.indexOf(word)>=0 ) list.push({ text:a+'=""', displayText:a });
-			return { 
-				list:list,
-				from: { line: cursor.line, ch: start },
-				to: { line: cursor.line, ch: word.length+start }
-			};	
-		}
-
-		// return the autocomplete list && coordinates
-		// return { 
-		// 	list:list,
-		// 	from: { line: cursor.line, ch: start },
-		// 	to: { line: cursor.line, ch: word.length+start }
-		// };	
-
-	} 
+	}
 };

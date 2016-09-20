@@ -75,6 +75,7 @@ function WWWEditor( config ){
 			completeSingle:false, 
 			parser:this.esprima 
 		};
+		console.log(this.hinter);
 		//
 		this.head +='<!DOCTYPE html><html><head><style>canvas{position:absolute;top:0;left:0;}body{background:white;}</style></head><body>';
 		this.head += this._loadLibs( config );
@@ -83,7 +84,9 @@ function WWWEditor( config ){
 		this.tail += '<\/script></body></html>';
 	}
 	else if( config.type === "css" ){
-
+		// ----------------------
+		// TODO FOR SOLO CSS FILES
+		// ----------------------
 	}
 	else { // html/mixed
 		this.mode = "htmlmixed";
@@ -93,7 +96,9 @@ function WWWEditor( config ){
 		this.hinter = { 
 			hint: this._HTMLHinter, 
 			completeSingle:false, 
-			// parser:this.esprima 
+			csshinter: this._CSSHinter,
+			jshinter: this._jsHinter,
+			parser:this.esprima 
 		};
 	}
 
@@ -198,11 +203,8 @@ WWWEditor.prototype._createEditor = function( val ){
 		});			
 	} else {
 
-		this.editor.on( 'change', function() {
-			// show html-hinter only if mode is html
-			var mode = this.editor.getModeAt(this.editor.getCursor()).name;
-			if( mode=="xml") // vs "javascript" or "css"			
-				this.editor.showHint(); // >> self.hinter
+		this.editor.on( 'change', function() {		
+			this.editor.showHint(); // >> self.hinter
 		});
 	}	
 
@@ -276,11 +278,8 @@ WWWEditor.prototype.update = function(){
 	else 
 		this._previewFrame( " !!! ERROR: (>_<) OH NO !!! " );
 
-	if( this.autoUpdate ){
-		// show html-hinter only if mode is html
-		var mode = this.editor.getModeAt(this.editor.getCursor()).name;
-		if( mode=="xml") // vs "javascript" or "css"			
-			this.editor.showHint(); // >> self.hinter
+	if( this.autoUpdate ){		
+		this.editor.showHint(); // >> self.hinter
 	}
 
 };
@@ -346,7 +345,8 @@ WWWEditor.prototype._previewFrame = function( value ){
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-WWWEditor.prototype._getCSSnfo= require('./css/CSSMenuContent');	// for nfo modal content
+WWWEditor.prototype._getCSSnfo = require('./css/CSSMenuContent');	// for nfo modal content
+WWWEditor.prototype._CSSHinter = require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\
@@ -355,10 +355,10 @@ WWWEditor.prototype._getCSSnfo= require('./css/CSSMenuContent');	// for nfo moda
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-WWWEditor.prototype._htmlParser= require('./html/HTMLParser');			// for parsing ( && spotting errors )
-WWWEditor.prototype._modal 	= require('./utils/NfoModal');			// for err/nfo pop ups
-WWWEditor.prototype._getHTMLnfo= require('./html/HTMLMenuContent');	// for nfo modal content
-WWWEditor.prototype._HTMLHinter= require('./html/HTMLHinter');			// for hinting ( ie. auto-complete suggestions )
+WWWEditor.prototype._htmlParser	= require('./html/HTMLParser');		// for parsing ( && spotting errors )
+WWWEditor.prototype._modal 		= require('./utils/NfoModal');		// for err/nfo pop ups
+WWWEditor.prototype._getHTMLnfo	= require('./html/HTMLMenuContent');// for nfo modal content
+WWWEditor.prototype._HTMLHinter	= require('./html/HTMLHinter');		// for hinting ( ie. auto-complete suggestions )
 
 WWWEditor.prototype._hack4hint = function() {
 	// when ur cursor is here: <tag|>
@@ -426,7 +426,7 @@ WWWEditor.prototype._htmlNfoWidget = function( lineNumber, message ){
 
 WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes positions
 	var self = this;
-	
+
 	function getWrd( offset ){
 		var getPosition = self.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch+offset});
 		var getWord 	= self.editor.getRange( getPosition.anchor, getPosition.head );
