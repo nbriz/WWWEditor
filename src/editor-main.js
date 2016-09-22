@@ -188,7 +188,9 @@ WWWEditor.prototype._createEditor = function( val ){
 		theme: 'bb-code-styles'
 	});
 
-	// EVENTS -----------------------------------------------
+	//-------------------------------------------------------
+	//------------------------------------------------ EVENTS 
+	//-------------------------------------------------------
 
 	if( this.autoUpdate ){							// on change
 		
@@ -214,9 +216,14 @@ WWWEditor.prototype._createEditor = function( val ){
 		// if html mode...
 		if( self.mode == "htmlmixed" ){
 			self._htmlNfo(); // place gutter helper widgets
-			self._hack4hint(); // adds xtra space in opening tag for attribute hints
+			self._hack4hint(); // adds xtra space in opening tag for attribute hints		
 		}
-		
+	});
+
+	document.getElementById(this.id).addEventListener('mousedown',function(e){
+		// TODO:::::::: fix bugs in CSSHelper
+		var mode = self.editor.getModeAt(self.editor.getCursor()).name;
+		self._CSSHelpers(self,mode,e);	// << this.cssNumSlider is defined here
 	});
 };
 
@@ -347,6 +354,8 @@ WWWEditor.prototype._previewFrame = function( value ){
 
 WWWEditor.prototype._getCSSnfo = require('./css/CSSMenuContent');	// for nfo modal content
 WWWEditor.prototype._CSSHinter = require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
+WWWEditor.prototype._CSSHelpers = require('./css/CSSHelpers');		// bret victor style helpers
+
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\

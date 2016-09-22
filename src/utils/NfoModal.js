@@ -8,7 +8,7 @@ module.exports = (function(){
     	var css = config.css;
     	var editor = config.editor;
     	var element = document.getElementById( editor.id );
-    	var type = config.type;
+    	var type = config.type || "help";
 
     	this.clr = {
     		red: '#F92672',

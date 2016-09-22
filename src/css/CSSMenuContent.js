@@ -20,7 +20,14 @@ module.exports = function( word, postChar ){
 
         return content;       
 
-    } else {
+    } 
+    
+    else if(cssProperties.hasOwnProperty( word ) && postChar==="{" ){
+        // then it's a selector!
+        return false; // for now
+    }
+
+    else {
         return false;
     }
 };    
