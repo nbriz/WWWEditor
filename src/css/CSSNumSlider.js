@@ -129,15 +129,10 @@ module.exports = function( self, mode, event ){
 				create: function(){
 					var THISOBJ = this;					
 					this.element = document.createElement('div');
-					this.element.setAttribute('id','cssNumSliderWWWEditor');
 					for( var key in this.css ) self.cssNumSlider.element.style[key] = this.css[key];
 					this.canvas = document.createElement('canvas');
 					this.canvas.width = width; this.canvas.height = parseFloat(fontSize)*2;
 					this.ctx = this.canvas.getContext('2d');
-					// this.ctx.font = fontSize+" inconsolata";
-					// this.ctx.textAlign = "center";
-					// this.ctx.textBaseline = "middle";
-					// this.ctx.fillText('click and drag to change value',this.canvas.width/2,this.canvas.height/2);	
 					this.drawArrows();
 					this.element.appendChild( this.canvas );	
 					this.canvas.addEventListener('mousemove', canvasMove);
@@ -225,7 +220,7 @@ module.exports = function( self, mode, event ){
 		}
 	
 	} else {
-		self.cssNumSlider.remove();
+		if( self.cssNumSlider ) self.cssNumSlider.remove();
 	}
 
 };

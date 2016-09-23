@@ -221,9 +221,11 @@ WWWEditor.prototype._createEditor = function( val ){
 	});
 
 	document.getElementById(this.id).addEventListener('mousedown',function(e){
-		// TODO:::::::: fix bugs in CSSHelper
+		var clrpkr = self._CSSColorPicker(self,e);	// << this.CSSColorPicker is defined here
 		var mode = self.editor.getModeAt(self.editor.getCursor()).name;
-		self._CSSHelpers(self,mode,e);	// << this.cssNumSlider is defined here
+		if( !clrpkr && mode==="css" ){
+			self._CSSNumSlider(self,mode,e);		// << this.cssNumSlider is defined here				
+		}	
 	});
 };
 
@@ -352,10 +354,10 @@ WWWEditor.prototype._previewFrame = function( value ){
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-WWWEditor.prototype._getCSSnfo = require('./css/CSSMenuContent');	// for nfo modal content
-WWWEditor.prototype._CSSHinter = require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
-WWWEditor.prototype._CSSHelpers = require('./css/CSSHelpers');		// bret victor style helpers
-
+WWWEditor.prototype._getCSSnfo 		= require('./css/CSSMenuContent');	// for nfo modal content
+WWWEditor.prototype._CSSHinter 		= require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
+WWWEditor.prototype._CSSNumSlider 	= require('./css/CSSNumSlider');	// bret victor style number slider
+WWWEditor.prototype._CSSColorPicker = require('./css/CSSColorPicker');	// bret victor style color picker
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\
