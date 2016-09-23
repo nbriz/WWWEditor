@@ -1,6 +1,8 @@
 module.exports = function( self, mode, event ){
 
+	var mouseX = event.clientX;
 	var pos, wrd, len, num, type;
+	var float, fb, fa;
 
 	function getWrd(side, position){
 		var getPosition, getWord;
@@ -14,10 +16,10 @@ module.exports = function( self, mode, event ){
 			getWord 	= self.editor.getRange( getPosition.anchor, getPosition.head );			
 		}
 
-		return getWord;
+		return { p:getPosition, w:getWord };
 	}
 
-	function setUpVars(){
+	function setUpVars(select){
 		pos = self.editor.findWordAt( self.editor.getCursor() );
 		wrd = self.editor.getRange( pos.anchor, pos.head );
 		num = parseFloat(wrd);
@@ -30,15 +32,45 @@ module.exports = function( self, mode, event ){
 
 		var before = getWrd("before",pos);
 		var after = getWrd("after",pos);
-		if( before.indexOf("-")===before.length-1){
+
+		// check for decimal
+		if( wrd=="." ){
+			float = true;
+			pos.anchor.ch -= before.w.length;
+			pos.head.ch += after.w.length;
+		} else if(before.w=="."){
+			fb = getWrd('before',before.p);
+			pos.anchor.ch -= (before.w.length+fb.w.length);
+			float = true;
+		} else if(after.w=="."){
+			fa = getWrd('after',after.p);
+			pos.head.ch += (after.w.length+fa.w.length);
+			float = true;
+		} else { float = false; }
+
+		before = getWrd("before",pos);
+		after = getWrd("after",pos);
+		wrd = self.editor.getRange( pos.anchor, pos.head );
+		num = parseFloat(wrd);
+
+		// check for negative value
+		if( before.w.indexOf("-")===before.w.length-1){
 			num = -num;
 			pos.anchor.ch--;
 		}
-		if( after.indexOf("%")===0){
+
+		// check for percent value
+		if( after.w.indexOf("%")===0){
 			pos.head.ch++;
 			type = "%";
 		}
-		len = pos.head.ch - pos.anchor.ch;
+
+		len = pos.head.ch - pos.anchor.ch;		
+
+		if(select){
+			var diff = len - ( pos.head.ch-pos.anchor.ch );
+			self.editor.setSelection( pos.anchor, {line:pos.head.line,ch:pos.head.ch+diff} );
+		}		
 	}
 
 	setUpVars();
@@ -46,17 +78,23 @@ module.exports = function( self, mode, event ){
 	function canvasMove(e){
 		if( e.buttons == 1 ){
 			var diff = len - ( pos.head.ch-pos.anchor.ch );
-			self.editor.setSelection( pos.anchor, {line:pos.head.line,ch:pos.head.ch+diff} );
-			var val = e.clientX - event.clientX;
-			var newVal = num + val;
+			self.editor.setSelection( pos.anchor, {line:pos.head.line,ch:pos.head.ch+diff} );	
+
+			var val;
+			if( float )	val = e.clientX/100 - mouseX/100;
+			else 		val = e.clientX - mouseX;							
+			
+			var newVal = Math.round( (num+val)*100 )/100;
 			len = (newVal+type).length;
 			self.editor.replaceSelection( newVal+type );
 			self.cssNumSlider.update(e.clientX);
+			self.editor.setSelection( pos.anchor, {line:pos.head.line,ch:pos.head.ch+diff} );
 		}
 	}
 
 	var removeListener = function (event) {
 		self.cssNumSlider.remove();
+		self.editor.undoSelection();
 		window.removeEventListener('mouseup',removeListener, false );
 	};	
 
@@ -65,9 +103,10 @@ module.exports = function( self, mode, event ){
 		var fontSize = window.getComputedStyle(el, null).getPropertyValue('font-size');
 		var top = event.clientY + parseFloat(fontSize);
 		var width = 275;
-		var left = event.clientX - width/2;
+		var left = mouseX - width/2;
 
-		if( !self.cssNumSlider ){
+		if( self.cssNumSlider ) self.cssNumSlider.remove();
+		//if( !self.cssNumSlider ){
 			self.cssNumSlider = { 
 				element:null,
 				inbody: false,
@@ -166,7 +205,7 @@ module.exports = function( self, mode, event ){
 					this.element.style.top = t+"px";
 					document.body.appendChild(this.element);
 					this.update();
-					setUpVars();
+					setUpVars( true );
 					this.inbody = true;
 				},
 				remove: function(){
@@ -177,7 +216,7 @@ module.exports = function( self, mode, event ){
 				}				
 			};
 			self.cssNumSlider.create();
-		}
+		//}
 		
 		if( !isNaN(num) ){
 			self.cssNumSlider.add(left,top);
