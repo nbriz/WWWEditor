@@ -331,7 +331,7 @@ module.exports = (function(){
 			var jsStart = html.indexOf("\<script");
 			var jsEnd = html.indexOf("\<\/script>");
 			var jsBetween = html.substring(jsStart,jsEnd);
-			var jsBrs = jsBetween.match(/\n/g).length;
+			var jsBrs = (jsBetween.match(/\n/g)) ? jsBetween.match(/\n/g).length : 0;
 			var jsFiller = "";
 			for (var j = 0; j < jsBrs; j++) jsFiller += "\n";			
 			html = html.substring(0, jsStart) + jsFiller + html.substring(jsEnd+9, html.length);
@@ -341,7 +341,7 @@ module.exports = (function(){
 			var cssStart = html.indexOf("\<style");
 			var cssEnd = html.indexOf("\<\/style>");
 			var cssBetween = html.substring(cssStart,cssEnd);
-			var cssBrs = cssBetween.match(/\n/g).length;
+			var cssBrs = (cssBetween.match(/\n/g)) ? cssBetween.match(/\n/g).length : 0;
 			var cssFiller = "";
 			for (var i = 0; i < cssBrs; i++) cssFiller += "\n";
 			html = html.substring(0, cssStart) + cssFiller + html.substring(cssEnd+8, html.length);
