@@ -372,7 +372,7 @@ module.exports = (function(){
 				return false;
 			}
 			else {
-				console.log(tag[0].length);
+				// console.log(tag[0].length);
 				if(tag[2]!=="html"){
 					this.err("something's wrong with your <!DOCTYPE html>, might be missing the html part, or has extra spaces/characters",html);
 					return false;
