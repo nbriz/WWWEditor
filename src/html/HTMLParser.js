@@ -139,7 +139,7 @@ module.exports = (function(){
 		if( post.indexOf("<")==post.indexOf("</") ) { 
 			// if so, is it the right one?
 			if( post.indexOf("</"+tagname)==post.indexOf("<") ) return true; // ok
-			else this.err("either <${1}> is misisng a closing tag, or there's a closing tag shortly after with no opening tag, make sure the element names are spelled right",html,this.ctStack[this.ctStack.length-1]); // not ok
+			else this.err("either <${1}> is missing a closing tag, or there's a closing tag shortly after with no opening tag, make sure the subsequent tags are all spelled right and aren't missing any < or >",html,this.ctStack[this.ctStack.length-1]); // not ok
 			// else this.err(tagname+" not the right closing tag / missing opening tag",html); // not ok 
 			// ^ (TODO: this when missing<h1>but diff when missing <p>)
 		} 
@@ -330,13 +330,21 @@ module.exports = (function(){
 		while (html.indexOf("\<script") >= 0) {
 			var jsStart = html.indexOf("\<script");
 			var jsEnd = html.indexOf("\<\/script>");
-			html = html.substring(0, jsStart) + html.substring(jsEnd+9, html.length);
+			var jsBetween = html.substring(jsStart,jsEnd);
+			var jsBrs = jsBetween.match(/\n/g).length;
+			var jsFiller = "";
+			for (var j = 0; j < jsBrs; j++) jsFiller += "\n";			
+			html = html.substring(0, jsStart) + jsFiller + html.substring(jsEnd+9, html.length);
 		}
 		// remove all CSS
 		while (html.indexOf("\<style") >= 0) {
 			var cssStart = html.indexOf("\<style");
 			var cssEnd = html.indexOf("\<\/style>");
-			html = html.substring(0, cssStart) + html.substring(cssEnd+8, html.length);
+			var cssBetween = html.substring(cssStart,cssEnd);
+			var cssBrs = cssBetween.match(/\n/g).length;
+			var cssFiller = "";
+			for (var i = 0; i < cssBrs; i++) cssFiller += "\n";
+			html = html.substring(0, cssStart) + cssFiller + html.substring(cssEnd+8, html.length);
 		}
 		return html;
 	};
