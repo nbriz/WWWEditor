@@ -2,8 +2,24 @@
 <html lang="en">
 	<head>
 		<title> my page </title>
+		<style type="text/css">a{color:red}</style>
+		<style>
+			h1+h2 { }
+			h1~h2 { }
+			.big.red { }
+			.test a {  }
+			#tester {  }
+			a[target] { }
+			a[target="_blank"] { }
+			div[class~="center"] { }
+			div[class^="t"] { }
+			div[class*="loo"] { }
+			p::first-letter { font-size:32px; }
+			a:hover {  }			
+		</style>
 		<meta charset="utf-8">
 		<style>
+
 			body {
 				background-color:#ff0000;
 				color:rgba(255,0,0,1.0);
@@ -11,6 +27,11 @@
 				border: solid 1px black;
 				width:100%;
 			}
+			
+			body > p {
+				color:black;
+			}
+
 		</style>		
 	</head>
 	<body>

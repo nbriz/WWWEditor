@@ -95,6 +95,7 @@ module.exports = function( self, mode, event ){
 	var removeListener = function (event) {
 		self.cssNumSlider.remove();
 		self.editor.undoSelection();
+		self.update();
 		window.removeEventListener('mouseup',removeListener, false );
 	};	
 

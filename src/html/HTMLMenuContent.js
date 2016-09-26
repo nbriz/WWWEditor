@@ -1,5 +1,19 @@
-module.exports = function( word, preChar ){
+module.exports = function( self, pos ){
 
+    var word = this.editor.getRange( pos.anchor, pos.head );
+
+    if( word == ">" || word == "/>") 
+        word = self.editor.getRange( pos.anchor, {line:pos.head.line,ch:pos.head.ch-1});
+
+
+    function getWrd( offset ){
+        var getPosition = self.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch+offset});
+        var getWord     = self.editor.getRange( getPosition.anchor, getPosition.head );
+        return getWord;
+    }
+
+    var preChar = getWrd(-1);
+    
     var elementsDict = require('./html-elements-dictionary');
     var attributesDict = require('./html-attributes-dictionary');
     var status, nfo, url, els, content;

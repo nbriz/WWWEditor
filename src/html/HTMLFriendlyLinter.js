@@ -1,20 +1,22 @@
 module.exports = (function(){
+// window.HTMLFriendlyLinter = (function(){
     'use strict';
 
     /*
 		// usage ...
-		var html = new HTMLParser();
-		var errObj = html.parse( htmlString );
+		var html = new HTMLFriendlyLinter();
+		var errObj = html.lint( htmlString );
 
 		// if there's no errors errObj = false
 		// if there are, then errObj looks like this:
 		//
-		// { text:..., html:...,  code:... }
+		// { message:..., html:...,  line:..., code:... }
 		//
-		// where 'text' is the particular error message
-		// and 'html' is an html formatted string 
+		// where 'message' is the plain text error message
+		// and 'html' is an html formatted error message 
 		// ( with nfo/lnks from the elements/attributes dictionary files )
-		// and 'code' is the htmlString, starting at the part where it err'd
+		// and 'line' is where the line number error was found
+		// and 'code' is the htmlString, starting at the part where it err'd out
 
 
 		---- what it's DOING ------------------------
@@ -34,13 +36,13 @@ module.exports = (function(){
 
 		---- what i've got left TO-DO ------------------------
 		at the moment i'm ignoring all script/style tags
-		... maybe parse those differently? 
+		... maybe lint those differently? 
 
 
     */
 
 
-    function HTMLParser(){
+    function HTMLFriendlyLinter(){
 
 		// Regular Expressions for parsing tags and attributes by John Resig (ejohn.org)
 		// startTag = [ entire-tag, tagname, attr, / ] ( or "" for attr && / if not present )
@@ -61,9 +63,11 @@ module.exports = (function(){
 		this.errorObj = null;
 		this.red = '#F92672';
 		this.green = '#a6da27';
+
+		this.lineCount = 0;
     }
 	
-	HTMLParser.prototype.err = function(){ 
+	HTMLFriendlyLinter.prototype.err = function(){ 
 		var msg = arguments[0];
 		var formatted = msg.replace(/</g,'&lt;');
 			formatted = formatted.replace(/>/g,'&gt;');
@@ -115,8 +119,13 @@ module.exports = (function(){
 			plain = plain.replace('${'+(j-1)+'}', arg );
 		}		
 
+		// find line of error
+		var num, brs = html.match(/\n/g);
+		if( !brs ) num = this.lineCount;
+		else num = this.lineCount - brs.length;
+
 		// return error object
-		this.errorObj = { text:plain, html:formatted,  code:html }; 
+		this.errorObj = { message:plain, html:formatted,  code:html, line:num }; 
 		return false;
 	};
 
@@ -126,7 +135,7 @@ module.exports = (function(){
 	// ---------------------------------------------------------------------------------------
 	// ---------------------------------------------------------------------------------------
 
-	HTMLParser.prototype.endConfirmed = function( tagname, html ){
+	HTMLFriendlyLinter.prototype.endConfirmed = function( tagname, html ){
 		// // see if it needs a closing tag
 		// if( this.elementsDict[tagname].singleton ) return true; // nope, all good
 
@@ -154,7 +163,7 @@ module.exports = (function(){
 		}
 	};
 
-	HTMLParser.prototype.singletonCheck = function( match, html ){
+	HTMLFriendlyLinter.prototype.singletonCheck = function( match, html ){
 		// see if it needs a closing tag
 		if( this.elementsDict[match[1].toLowerCase()].singleton ){
 			// if it's a singleton, make sure there isn't a rouge end-tag
@@ -178,7 +187,7 @@ module.exports = (function(){
 	};
 
 
-	HTMLParser.prototype.caseCheck = function( match, html ){
+	HTMLFriendlyLinter.prototype.caseCheck = function( match, html ){
 		var c;
 		if( match[1] == match[1].toLowerCase() ) c = "lower";
 		else if( match[1] == match[1].toUpperCase() ) c = "upper";
@@ -190,7 +199,7 @@ module.exports = (function(){
 		}
 	};
 
-	HTMLParser.prototype.checkAttributes = function( html ){ 	
+	HTMLFriendlyLinter.prototype.checkAttributes = function( html ){ 	
 		// if start-tag has no attr then disregard check
 		if( html.match(this.startTag)[2]==="" ) return true;
 
@@ -257,8 +266,8 @@ module.exports = (function(){
 	// ---------------------------------------------------------------------------------------
 
 
-	HTMLParser.prototype.checkOpeningTag = function( match, html ){
-		// make sure it can be parsed 
+	HTMLFriendlyLinter.prototype.checkOpeningTag = function( match, html ){
+		// make sure it can be linted 
 		// ( match[0]=entire tag, [1]=tag name, [2]=attributes )
 		if( !match ){
 			// if not, make sure not missing closing >
@@ -292,7 +301,7 @@ module.exports = (function(){
 	};
 
 
-	HTMLParser.prototype.checkClosingTag = function( match, html ){
+	HTMLFriendlyLinter.prototype.checkClosingTag = function( match, html ){
 		// check that closing tag is formatted properly ( not missing > or spaced </p > )
 		if( match[0].length !== match[1].length+3 ){
 			this.err("closing tag should look like this: </${1}>, make sure there aren't any spaces, extra characters, or missing characters",html,match[1]);
@@ -320,12 +329,12 @@ module.exports = (function(){
 
 
 	// ---------------------------------------------------------------------------------------
-	// ------------------ main parse functions -----------------------------------------------
+	// ------------------ main lint functions -----------------------------------------------
 	// ---------------------------------------------------------------------------------------
 	// ---------------------------------------------------------------------------------------
 
 
-	HTMLParser.prototype.removeCSSandJS = function( html ) {
+	HTMLFriendlyLinter.prototype.removeCSSandJS = function( html ) {
 		// remove all JS
 		while (html.indexOf("\<script") >= 0) {
 			var jsStart = html.indexOf("\<script");
@@ -349,7 +358,7 @@ module.exports = (function(){
 		return html;
 	};
 
-	HTMLParser.prototype.checkDoctype = function( html ){
+	HTMLFriendlyLinter.prototype.checkDoctype = function( html ){
 		var code = html.toLowerCase();
 		if(  code.indexOf('<!doctype html>')!==0 ){
 			// check first part
@@ -389,7 +398,7 @@ module.exports = (function(){
 	};
 
 
-	HTMLParser.prototype.catchParseErrz = function( html ){
+	HTMLFriendlyLinter.prototype.cathLintErrz = function( html ){
 		if( html.indexOf('< ')>=0 || html.indexOf('<\t')>=0 || html.indexOf('<\n')>=0 ){
 		
 			var idx = html.indexOf('< ') || html.indexOf('<\n') || html.indexOf('<\t') || "?";
@@ -403,7 +412,7 @@ module.exports = (function(){
 	};
 
 
-	HTMLParser.prototype.checkAndRemove = function( html ){
+	HTMLFriendlyLinter.prototype.checkAndRemove = function( html ){
 
 		var type = (function(str){
 				 if( str.indexOf("<!--")===0 ) return "comment";
@@ -451,15 +460,23 @@ module.exports = (function(){
 	};
 
 
-	// ------------------ PUBLIC PARSE FUNCTION ----------------------------------------------
+	// ------------------ PUBLIC lint FUNCTION ----------------------------------------------
 	// ---------------------------------------------------------------------------------------
 
-	HTMLParser.prototype.parse = function( html ){
+	HTMLFriendlyLinter.prototype.lint = function( html ){
 		// reset....
 		this.ctStack = [];
 		this.errorObj = null;
 		this.caseConsistency = null; 
 		this.closeConsistency = null;
+		this.lineCount = (function(str){
+			var br = 0;
+			while( str.indexOf('\n')>=0 ){
+				br++;
+				str = str.substring( str.indexOf('\n')+1 );
+			}
+			return br;
+		})(html);
 
 		// remove all js && css b4 parsing
 		html = this.removeCSSandJS(html);
@@ -469,7 +486,7 @@ module.exports = (function(){
 		if( this.errorObj ) return this.errorObj;
 
 		// catch dangerous < > usage err
-		this.catchParseErrz(html); 
+		this.cathLintErrz(html); 
 		if( this.errorObj ) return this.errorObj;
 		
 
@@ -487,6 +504,6 @@ module.exports = (function(){
 		}
 	};
 
-	return HTMLParser;
+	return HTMLFriendlyLinter;
 
 }());
