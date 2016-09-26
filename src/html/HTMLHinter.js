@@ -5,6 +5,35 @@ module.exports = function(cm, options){
 	var cursor, line, start, end, alone, word, list;
 	var mode = cm.getModeAt(cm.getCursor()).name;
 
+	var snippets = {
+		'a' : '<a href="#"></a>'
+	};
+
+	function returnElementHint( elementsDict, word, cursor, start ){
+		for(var t in elementsDict ){
+			// if word is in an element, add that element to the list
+			if( t.indexOf(word)>=0 ){
+				ctxt = (elementsDict[t].singleton) ? "<"+t+">" : "<"+t+"></"+t+">";
+				if( typeof snippets[t]!=="undefined" ) ctxt = snippets[t];
+				list.push({ text:ctxt, displayText:t });					
+			} 
+		}
+		return { 
+			list:list,
+			from: { line: cursor.line, ch: start },
+			to: { line: cursor.line, ch: (word.length)+start+1 }
+		};
+	}
+
+	function returnAttributeHint(attributesDict, word, cursor, start ){
+		for(var a in attributesDict ) if( a.indexOf(word)>=0 ) list.push({ text:a+'=""', displayText:a });
+		return { 
+			list:list,
+			from: { line: cursor.line, ch: start },
+			to: { line: cursor.line, ch: word.length+start }
+		};	
+	}
+
 
 	if( mode == "javascript" ){ // --------------------------------------------------------------- JAVASCRIPT
 
@@ -45,34 +74,21 @@ module.exports = function(cm, options){
 			if( word[0]=="<" || word.indexOf("</")===0 ){
 
 				word = word.substring(1); // remove < from word
-
-				for(var t in elementsDict ){
-					// if word is in an element, add that element to the list
-					if( t.indexOf(word)>=0 ){
-						ctxt = (elementsDict[t].singleton) ? "<"+t+">" : "<"+t+"></"+t+">";
-						list.push({ text:ctxt, displayText:t });					
-					} 
-				}
-				
-				return { 
-					list:list,
-					from: { line: cursor.line, ch: start },
-					to: { line: cursor.line, ch: (word.length)+start+1 }
-				};
+				return returnElementHint(elementsDict, word, cursor, start);
 		
 			} 
 			// are we writing an attribute name?
-			else if( 	line.indexOf("<")>=0 && 
+			if( 	line.indexOf("<")>=0 && 
 						line.indexOf("<")<line.indexOf(word) && 
 						( line.indexOf(">")<0||line.indexOf(">")>line.indexOf(word) ) 
 			){ 			
 
-				for(var a in attributesDict ) if( a.indexOf(word)>=0 ) list.push({ text:a+'=""', displayText:a });
-				return { 
-					list:list,
-					from: { line: cursor.line, ch: start },
-					to: { line: cursor.line, ch: word.length+start }
-				};	
+				return returnAttributeHint(attributesDict, word, cursor, start);
+
+			} else {
+				// otherwise assume element 
+				return returnElementHint(elementsDict, word, cursor, start);
+	
 			}
 
 			// return the autocomplete list && coordinates
