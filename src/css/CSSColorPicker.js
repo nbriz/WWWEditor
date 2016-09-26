@@ -33,7 +33,7 @@ module.exports = function( self, event ){
 		mousedown1 = function(e) { drag1 = true; updateColor(e); };
 		mousemove1 = function(e) { if (drag1) updateColor(e); };
 		mouseup1 = function(e) { drag1 = false; rmvColorPicker(); };
-		rmvColorPicker = function(){ self.CSSColorPicker.remove(); };
+		rmvColorPicker = function(){ self.CSSColorPicker.remove(); self.update(); };
 		updateColor = function(e) {
 			self.editor.setSelection({line:pos.anchor.line,ch:pos.anchor.ch-1},pos.head);
 			x = e.offsetX;

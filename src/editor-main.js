@@ -354,6 +354,8 @@ WWWEditor.prototype._previewFrame = function( value ){
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+// WWWEditor.prototype._csslint = require('csslint');	
+WWWEditor.prototype._CSSErrParser 	= require('./css/CSSErrParser');	
 WWWEditor.prototype._getCSSnfo 		= require('./css/CSSMenuContent');	// for nfo modal content
 WWWEditor.prototype._CSSHinter 		= require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
 WWWEditor.prototype._CSSNumSlider 	= require('./css/CSSNumSlider');	// bret victor style number slider
@@ -366,7 +368,7 @@ WWWEditor.prototype._CSSColorPicker = require('./css/CSSColorPicker');	// bret v
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-WWWEditor.prototype._htmlParser	= require('./html/HTMLParser');		// for parsing ( && spotting errors )
+WWWEditor.prototype._htmlLinter	= require('./html/HTMLFriendlyLinter');		// for parsing ( && spotting errors )
 WWWEditor.prototype._modal 		= require('./utils/NfoModal');		// for err/nfo pop ups
 WWWEditor.prototype._getHTMLnfo	= require('./html/HTMLMenuContent');// for nfo modal content
 WWWEditor.prototype._HTMLHinter	= require('./html/HTMLHinter');		// for hinting ( ie. auto-complete suggestions )
@@ -438,44 +440,26 @@ WWWEditor.prototype._htmlNfoWidget = function( lineNumber, message ){
 WWWEditor.prototype._htmlNfo = function() { // trigered when cursor changes positions
 	var self = this;
 
-	function getWrd( offset ){
-		var getPosition = self.editor.findWordAt({line:pos.anchor.line,ch:pos.anchor.ch+offset});
-		var getWord 	= self.editor.getRange( getPosition.anchor, getPosition.head );
-		return getWord;
-	}
-
 	if( this.errWidgets.length <= 0 ){
 		// if there are no errors present, create nfo widget
-		var pos = this.editor.findWordAt(this.editor.getCursor());
-		var wrd = this.editor.getRange( pos.anchor, pos.head );
-		if( wrd == ">" || wrd == "/>") 
-			wrd = this.editor.getRange( pos.anchor, {line:pos.head.line,ch:pos.head.ch-1});
-
 		var content;
-		// exit if wrd is inside js or css
+		var pos = this.editor.findWordAt(this.editor.getCursor());
 		var mode = this.editor.getModeAt( pos.head ).name;
 		if( mode=="javascript") {
+		
 			content = "sorry js coming soon";
 			return;
+		
 		} else if( mode=="css" ){
-			// get char after ( looking for : to confirm it's a property )
-			var afChar = getWrd(wrd.length);
-			if( afChar==="-" ){ // in case it's a prop like: background-color
-				afChar = getWrd(wrd.length+1);
-				wrd = wrd +"-"+afChar;
-				afChar = getWrd(wrd.length);
-			}
-			if( afChar[0]===" " ) afChar = getWrd(wrd.length+afChar.length);
-			content = this._getCSSnfo( wrd, afChar );
+			
+			content = this._getCSSnfo( this );
 		
 		} else { // html
-			// get char before word ( looking for "<" or "</" )
-			var preChar = getWrd(-1);
-			content = this._getHTMLnfo( wrd, preChar );
+			content = this._getHTMLnfo( this, pos );
 		}
 		
-		// create gutter widget
-		this._htmlNfoWidget( pos.head.line, content ); // this is also CSS Nfo Widget
+		// create gutter widget ( for both HTML or CSS )
+		this._htmlNfoWidget( pos.head.line, content ); 
 
 		// if modal is present, remove it
 		if( this.modal ) {
@@ -524,19 +508,18 @@ WWWEditor.prototype._htmlValidate = function(code){
 		if( this.modal ) this.modal = this.modal.remove();
 
 		// create html parser if first time validating
-		if( typeof this.html === "undefined") this.html = new this._htmlParser();
+		if( typeof this.html === "undefined") this.html = new this._htmlLinter();
 
 		// clear previous markers ( ie. highlighted errors )
 		if( this.markers.length>0 )
 			for (var i = 0; i < this.markers.length; i++) this.markers[i].clear();
 
+		var err;
 		// parse html && check for errors
-		var err = this.html.parse( code );
+		err = this.html.lint( code );
+		// parse CSS && check for errors ( html err takes presedence )
+		if(!err) err = this._CSSErrParser( code, 'html' );
 		if( err ){	
-			// get line number	
-			var num, brs = err.code.match(/\n/g);
-			if( !brs ) num = this.editor.lineCount()-1;
-			else num = this.editor.lineCount() - brs.length -1;
 
 			// create nfoPanel if first time an error appears
 			if( this.firstError ){
@@ -546,12 +529,12 @@ WWWEditor.prototype._htmlValidate = function(code){
 			} 
 
 			// create error widget + console warning
-			this._htmlErrWidget( num, err.html );
-			console.warn( "line "+(num+1)+": "+ err.text );
+			this._htmlErrWidget( err.line, err.html );
+			console.warn( "line "+(err.line+1)+": "+ err.message );
 
 			// mark text ( ie. highlight red area )
 			this.markers.push(
-				this.editor.markText({line:num,ch:0}, {line:num,ch:null}, {className: "styled-background"})
+				this.editor.markText({line:err.line,ch:0}, {line:err.line,ch:null}, {className: "styled-background"})
 			);
 		} 
 	}
