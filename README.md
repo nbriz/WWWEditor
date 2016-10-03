@@ -25,6 +25,8 @@ then create an instanceof the WWWEditor
 		id: "editor"
 	});
 
+<br>
+
 ###config object
 
 **id:** *[string]* the id value of the element u want to stick the WWWEditor in. this is the only required config parameter, but there's lots of additional optional parameters u can pass to the config object
@@ -64,6 +66,9 @@ here's an example of a more complicated instanceof WWWEditor:
 		autoUpdate: false
 	});
 
+
+<br><br><br>
+
 ##API
 
 ###url parameters
@@ -79,7 +84,7 @@ if no **file** config property is set, the WWWEditor looks to see if there's a f
 `.addPanel( message, placement )` u can insert helpful tips/messages ( the same kind that  automatically appear when **uiTip** is set to true ) by calling the addPanel method which takes at least one argument ( *message* the string u want to appear in the tip panel ) as well as an optional *placement* argument ( either "top" or "bottom", default is "bottom" )
 
 
-
+<br><br><br>
 
 
 ## dev notes
