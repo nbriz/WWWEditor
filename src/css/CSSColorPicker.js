@@ -8,11 +8,20 @@ module.exports = function( self, event ){
 	// via: http://stackoverflow.com/a/8027444/1104148
  	var isHexClr  = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(wrdB4[wrdB4.length-1]+wrd);
 
+
  	var mouseup1, mousedown1, mousemove1, updateColor, rmvColorPicker;
  	var mouseup2, mousedown2, mousemove2, updateCanvClr;
  	var componentToHex, rgbToHex;
 
  	if( isHexClr ){
+
+		if(wrd.length==3){
+			self.editor.setSelection({line:pos.anchor.line,ch:pos.anchor.ch-1},pos.head);
+			self.editor.replaceSelection("#"+wrd[0]+wrd[0]+wrd[1]+wrd[1]+wrd[2]+wrd[2]);
+			var cursor = self.editor.getCursor();
+	 		pos = self.editor.findWordAt({ line:cursor.line, ch:cursor.ch-3 });
+	 		wrd = self.editor.getRange( pos.anchor, pos.head );			
+		} 		
 
 		var x = 0;
 		var y = 0;
