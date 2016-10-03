@@ -1,15 +1,40 @@
 module.exports = function(cm, options){
 
-	// HANDLES MIXED HTML / CSS / JS HINTING
 
 	var cursor, line, start, end, alone, word, list;
 	var mode = cm.getModeAt(cm.getCursor()).name;
 
 	var snippets = {
-		'a' : '<a href="#"></a>'
+		'a' : '<a href="#"></a>',
+		'img' : '<img src="">',
+		'link' : '<link rel="stylesheet" href="">',
+		'doctype' : '<!DOCTYPE html>'
 	};
 
+	function reOrder( list, word ){
+		var new_index = 0;
+		var old_index;
+		list.forEach(function(val,i){
+			if( val.displayText == word ) old_index = i;
+		});
+
+		if( old_index ){
+		    if (new_index >= list.length) {
+		    	// via: http://stackoverflow.com/a/5306832/1104148
+		        var k = new_index - list.length;
+		        while ((k--) + 1) {
+		            list.push(undefined);
+		        }
+		    }
+		    list.splice(new_index, 0, list.splice(old_index, 1)[0]);
+		    return list;
+		} else {
+			return list;
+		}
+	}
+
 	function returnElementHint( elementsDict, word, cursor, start ){
+		var holdClosest;
 		for(var t in elementsDict ){
 			// if word is in an element, add that element to the list
 			if( t.indexOf(word)>=0 ){
@@ -18,6 +43,10 @@ module.exports = function(cm, options){
 				list.push({ text:ctxt, displayText:t });					
 			} 
 		}
+		
+		// make sure that word is always on top of list
+		list = reOrder(list,word);
+
 		return { 
 			list:list,
 			from: { line: cursor.line, ch: start },
@@ -27,12 +56,21 @@ module.exports = function(cm, options){
 
 	function returnAttributeHint(attributesDict, word, cursor, start ){
 		for(var a in attributesDict ) if( a.indexOf(word)>=0 ) list.push({ text:a+'=""', displayText:a });
+		
+		// make sure that word is always on top of list
+		list = reOrder(list,word);
+
 		return { 
 			list:list,
 			from: { line: cursor.line, ch: start },
 			to: { line: cursor.line, ch: word.length+start }
 		};	
 	}
+
+
+
+	// ---------------- HANDLES MIXED HTML / CSS / JS HINTING ----------------------------------------------
+
 
 
 	if( mode == "javascript" ){ // --------------------------------------------------------------- JAVASCRIPT
