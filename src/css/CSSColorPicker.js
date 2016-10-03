@@ -32,7 +32,7 @@ module.exports = function( self, event ){
 		var el = document.getElementById(self.id);
 		var fontSize = window.getComputedStyle(el, null).getPropertyValue('font-size');
 		var top = event.clientY + parseFloat(fontSize);
-		var width = 10+200+10 + 50+10;
+		var width = (10+200+10) + (50+10);
 		var left = mouseX - width/2;
 
 		// via: http://stackoverflow.com/a/5624139/1104148
@@ -76,13 +76,15 @@ module.exports = function( self, event ){
 				position: 'absolute',
 				zIndex: 9999999,
 				top: top + "px",
-				left: left + "px",
+				// left: left + "px",
+				left: "50px",
 				border: "solid 1px rgb(117, 113, 94)",
 				boxShadow: "-3px 3px 2px 0 rgba(0, 0, 0, 0.5)",
 				webkitBoxShadow: "-3px 3px 2px 0 rgba(0, 0, 0, 0.5)",
 				background: 'rgba(39,40,34,0.9)', // same as self.clr.dark, but transparent
 				color: '#fff',
-				width: width + 'px',
+				buffer:10,
+				width: width + this.buffer+ 'px',
 				fontWeight: 300,
 				cursor: 'crosshair'
 			},
@@ -146,6 +148,8 @@ module.exports = function( self, event ){
 			},
 			add: function(l, t) {
 				if (this.inbody) this.remove();
+				// console.log(width,document.body.offsetWidth-10);
+				// if(l+width>=document.body.offsetWidth-10) l = 50;
 				this.element.style.left = l + "px";
 				this.element.style.top = t + "px";
 				document.body.appendChild(this.element);

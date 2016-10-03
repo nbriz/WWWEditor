@@ -204,7 +204,6 @@ module.exports = {
 		var classSel = 'a <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">class</a>';
 		var idSel = 'an <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">id</a>';
 		var tSel = classSel;
-		console.log(arr);
 
 		// construct the explination  
 		for (i = arr.length-1; i >= 0; i--) {
