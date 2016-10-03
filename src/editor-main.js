@@ -26,7 +26,8 @@ function WWWEditor( config ){
 		{ param: config.supressRefErr, name:'supressRefErr', type:['undefined','boolean'] },
 		{ param: config.autoUpdate, name:'autoUpdate', type:['undefined','boolean'] },
 		{ param: config.updateDelay, name:'updateDelay', type:['undefined','number'] },
-		{ param: config.modalCSS, name:'modalCSS', type:['undefined','object'] }
+		{ param: config.modalCSS, name:'modalCSS', type:['undefined','object'] },
+		{ param: config.cssWidgets, name:'cssWidgets', type:['undefined','boolean'] }
 	]);
 
 
@@ -43,6 +44,7 @@ function WWWEditor( config ){
 
 
 	// settings ------------------------------------------------------
+	this.cssWidgets 	= (typeof config.cssWidgets==="undefined") ? true : config.cssWidgets;
 	this.friendlyErrors = (typeof config.friendlyErrors==="undefined") ? false : config.friendlyErrors;
 	this.uiTip 			= (typeof config.uiTip==="undefined") ? false : config.uiTip;
 	this.supressRefErr 	= (typeof config.supressRefErr==="undefined") ? false : config.supressRefErr; // js only
@@ -228,13 +230,16 @@ WWWEditor.prototype._createEditor = function( val ){
 		}
 	});
 
-	document.getElementById(this.id).addEventListener('mousedown',function(e){
-		var clrpkr = self._CSSColorPicker(self,e);	// << this.CSSColorPicker is defined here
-		var mode = self.editor.getModeAt(self.editor.getCursor()).name;
-		if( !clrpkr && mode==="css" ){
-			self._CSSNumSlider(self,mode,e);		// << this.cssNumSlider is defined here				
-		}	
-	});
+	if( this.cssWidgets ){
+		document.getElementById(this.id).addEventListener('mousedown',function(e){
+			var clrpkr = self._CSSColorPicker(self,e);	// << this.CSSColorPicker is defined here
+			var mode = self.editor.getModeAt(self.editor.getCursor()).name;
+			if( !clrpkr && mode==="css" ){
+				self._CSSNumSlider(self,mode,e);		// << this.cssNumSlider is defined here				
+			}	
+		});		
+	}
+
 };
 
 
