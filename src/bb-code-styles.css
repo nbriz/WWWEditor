@@ -58,6 +58,8 @@
 .cm-s-bb-code-styles .cm-tag { color: #F92672; }
 /* green */
 .cm-s-bb-code-styles .cm-attribute {color: #a6da27;} 
+.cm-s-bb-code-styles .cm-qualifier {color: #a6da27;} 
+.cm-s-bb-code-styles .cm-builtin {color: #a6da27;} 
 .cm-s-bb-code-styles .cm-def { font-style: normal; color:#a6da27; } 
 
 

@@ -59,6 +59,8 @@ module.exports = (function(){
 		};
 
     	// style element
+        // this.ele.className = "cm-s-bb-code-styles";
+        // this._parseCSS( this.default );
     	if( typeof css == "object" ) this._parseCSS( css );
     	else if(typeof css == "undefined"){
     		this.ele.className = "cm-s-bb-code-styles";

@@ -4,6 +4,7 @@ module.exports = function( code, type ){
 	var errSwap 	= require('./CSSFriendlyErrz');	
 	var cssDict 	= require('./css-properties-dictionary');
 	var htmlDict 	= require('../html/html-elements-dictionary'); 
+	var pseudoDict 	= require('./css-pseudo-classes-dictionary');
 
 	
 	var err = false;
@@ -55,11 +56,11 @@ module.exports = function( code, type ){
 		var line = 0;
 		var cnt = parseInt(key[key.length-1])+1;
 		// check if mixed html or plain css
-		if( cnt === 0 && typeof outline.html0==="undefined" ){
+		if( type == "css" ){
 			sub = outline[key].str.substring( 0, outline[key].str.indexOf(sel));
 			line += countBreaks(sub);
 			return line;			
-		} else {
+		} else {			
 			for (var c = 0; c < cnt; c++) {
 				if( c==cnt-1)
 					line += outline['html'+c].brs;
@@ -72,10 +73,10 @@ module.exports = function( code, type ){
 		}
 	}
 
-	function confirmSelector( key, iter, obj ){
-		var tag;
-		var s = obj.selectorText;
-		var xcept = ['h1','h2','h3','h4','h5','h6'];
+	function confirmSel(s,key,iter){
+		var xcept = ['h1','h2','h3','h4','h5','h6',"*"];
+		for( var p in pseudoDict ) xcept.push(p);
+
 		if( s[0]!=='.' && s[0]!=='#' && s[0]!=="@" ){
 			var idx = getIdxOfSpecialChar( s );
 			if( idx ){
@@ -85,8 +86,9 @@ module.exports = function( code, type ){
 			}
 		}
 		if( tag ){
+			// if( tag[tag.length-1]=="," ) tag = 
 			if( typeof htmlDict[tag]=='undefined' && xcept.indexOf(tag)<0 ){
-				var m = '<span style="color:#fff;font-weight:bold">'+tag+'</span>'+
+				var m = '<span style="color:#F92672;font-weight:bold">'+tag+'</span>'+
 						' is not a valid type selector, because that isn\'t an actual HTML element.'+
 						' if this was meant to be a class or id selector don\'t forget the . or the #';
 				var l =  getLine( key, iter, s );
@@ -96,10 +98,41 @@ module.exports = function( code, type ){
 		return false;
 	}
 
+	function confirmSelector( key, iter, obj ){
+		var tag, tags;
+		var s = obj.selectorText;
+		var errObj, errObjs = [];
+		// check && see if it's a list of selectors or just one
+		if(s.indexOf(',')>=0) tags = s.split(',');
+		if( tags ){
+			for (var i = 0; i < tags.length; i++) {
+				var e = confirmSel( tags[i], key, iter );
+				if( typeof e == "object" ) errObjs.push( e );
+			}
+		} else {
+			errObj = confirmSel( s, key, iter );
+		}
+
+		if( errObjs.length > 0 ) return errObjs[0];
+		else if( errObj ) return errObj;
+		else return false;
+	}
+
 	function confirmProperties( key, iter, obj ){
 		var s = obj.selectorText;
-		var sel = outline[key].str.indexOf( obj.selectorText );
-		var str = outline[key].str.substring( sel+obj.selectorText.length, outline[key].str.length );
+		var sel = outline[key].str.indexOf( s );
+		// hack ( selectorText will add spaces between + && ~ selectors, it also replaces " " w/ "*" when global ) 
+		// here's some kludgey accounting for that
+		if( sel == -1 ){
+			var adj = s.indexOf(" + ");
+			var gen = s.indexOf(" ~ ");
+			var glo = s.indexOf("*");
+			if( gen > 0) s = s.replace(/\s\~\s/g,"~");
+			if( adj > 0) s = s.replace(/\s\+\s/g,"+");
+			if( glo >=0) s = s.replace(/\*/g,"");
+			sel = outline[key].str.indexOf( s );
+		} 
+		var str = outline[key].str.substring( sel+s.length, outline[key].str.length );
 			str = str.trim();
 			str = str.substring( 1, str.indexOf('}'));
 			str = str.replace(/\t/g,'').replace(/\s/g,'').replace(/\n/g,'');
@@ -107,8 +140,9 @@ module.exports = function( code, type ){
 		for (var i = 0; i < strArr.length; i++) {
 			var strProp = strArr[i].substring( 0, strArr[i].indexOf(':') ).trim();
 			if( strProp!=="" && typeof cssDict[strProp]==="undefined" ){
-				var m = ' the <span style="color:#fff;font-weight:bold">'+strProp+'</span>'+
-				' property in this <span style="color:#fff;font-weight:bold">'+s+'</span>'+
+				var clr = (s[0]=="."|s[0]=="#") ? '#fff' : '#F92672';
+				var m = ' the <span style="color:#64d6eb;font-weight:bold">'+strProp+'</span>'+
+				' property in this <span style="color:'+clr+';font-weight:bold">'+s+'</span>'+
 				' CSS rule isn\'t a valid CSS property. make sure you spelled it right';
 				var l =  getLine( key, iter, s ); 
 				return { message:m, line:l, html:m };
@@ -170,6 +204,10 @@ module.exports = function( code, type ){
 	} else if( type=="css" ){
 
 		// create outline obj ( assuming a css stylesheet && not css style tags inside html )
+		outline.css0 = {
+			brs: countBreaks(code),
+			str: code
+		};
 
 	} else {
 		throw new Error('CSSErrParser: type property must be either "html" or "css" ');

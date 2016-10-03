@@ -87,6 +87,14 @@ function WWWEditor( config ){
 		// ----------------------
 		// TODO FOR SOLO CSS FILES
 		// ----------------------
+		this.mode = "css";
+		//
+		this.markers = []; // holds error markers ( ie. highlited text )
+		//
+		this.hinter = { 
+			hint: this._CSSHinter, 
+			completeSingle:false
+		};		
 	}
 	else { // html/mixed
 		this.mode = "htmlmixed";
@@ -214,7 +222,7 @@ WWWEditor.prototype._createEditor = function( val ){
 		// clear all previous helper widgets
 		self._clearWidgets("help");
 		// if html mode...
-		if( self.mode == "htmlmixed" ){
+		if( self.mode == "htmlmixed" || self.mode=="css" ){
 			self._htmlNfo(); // place gutter helper widgets
 			self._hack4hint(); // adds xtra space in opening tag for attribute hints		
 		}
@@ -291,6 +299,9 @@ WWWEditor.prototype.update = function(){
 		this.editor.showHint(); // >> self.hinter
 	}
 
+	// CSS attribute selector hack
+	this._CSSAttrSelColorize();
+
 };
 
 
@@ -324,7 +335,8 @@ WWWEditor.prototype._validate = function(){
 
 	// validate code
 	if( this.mode == "javascript" ) 	return this._jsValidate(code);
-	else if( this.mode === "htmlmixed") return this._htmlValidate(code);
+	else if( this.mode === "htmlmixed" ) return this._htmlValidate(code);
+	else if( this.mode === "css" ) return this._cssValidate(code);
 };
 
 WWWEditor.prototype._previewFrame = function( value ){
@@ -354,13 +366,60 @@ WWWEditor.prototype._previewFrame = function( value ){
 |								|
 \* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// WWWEditor.prototype._csslint = require('csslint');	
-WWWEditor.prototype._CSSErrParser 	= require('./css/CSSErrParser');	
+WWWEditor.prototype._CSSErrParser 	= require('./css/CSSErrParser');	// uses csslint + more to spot CSS errors	
 WWWEditor.prototype._getCSSnfo 		= require('./css/CSSMenuContent');	// for nfo modal content
 WWWEditor.prototype._CSSHinter 		= require('./css/CSSHinter');		// for hinting ( ie. auto-complete suggestions )
 WWWEditor.prototype._CSSNumSlider 	= require('./css/CSSNumSlider');	// bret victor style number slider
 WWWEditor.prototype._CSSColorPicker = require('./css/CSSColorPicker');	// bret victor style color picker
 
+WWWEditor.prototype._CSSAttrSelColorize = function(){
+	var cmtags = document.querySelectorAll('.cm-tag');
+	for (var i = 0; i < cmtags.length; i++) {
+		var nodes = cmtags[i].parentElement.childNodes;
+		for (var j = 0; j < nodes.length; j++) {
+			if( nodes[j] == cmtags[i] ){
+				if( j-1>=0 && nodes[j-1].textContent=="["){
+					cmtags[i].style.color = '#a6da27';
+				}
+			}
+		}
+	}
+};
+
+WWWEditor.prototype._cssValidate = function(code){
+	if( this.friendlyErrors ){
+		// clear previous widgets && modals
+		this._clearWidgets();
+		if( this.modal ) this.modal = this.modal.remove();
+
+		// clear previous markers ( ie. highlighted errors )
+		if( this.markers.length>0 )
+			for (var i = 0; i < this.markers.length; i++) this.markers[i].clear();
+
+		var err = this._CSSErrParser( code, 'css' );
+		// console.log(err);
+		if( err ){	
+
+			// create nfoPanel if first time an error appears
+			if( this.firstError ){
+				this.firstError = false;
+				this.addPanel("you made your first mistake! hurray :)");	
+				this.addPanel("click the diamond question mark to open a modal with more info");
+			} 
+
+			// create error widget + console warning
+			this._htmlErrWidget( err.line, err.html );
+			console.warn( "line "+(err.line+1)+": "+ err.message );
+
+			// mark text ( ie. highlight red area )
+			this.markers.push(
+				this.editor.markText({line:err.line,ch:0}, {line:err.line,ch:null}, {className: "styled-background"})
+			);
+		} 
+	}
+
+	return "error free!";
+};
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ *\
 |								|

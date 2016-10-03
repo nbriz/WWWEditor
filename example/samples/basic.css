@@ -1,0 +1,30 @@
+
+body {
+	background-color:#ff0000;
+	color:rgba(255,0,0,1.0);
+	font-size:-16pt;
+	border: solid 1px black;
+	width:100%;
+} body > p {
+	color:black;
+}
+
+a+b.test > span {
+	color:red;
+}
+
+
+
+div, span, section {  }
+h1+h2 { }
+h1~h2 { }
+.big.red { }
+.test a:nth-child(1) {  }
+#tester {  }
+a[target] { }
+a[target="_blank"] { }
+div[class~="center"] { }
+div[class^="t"] { }
+div[class*="loo"] { }
+p::first-letter { font-size:32px; }
+a:hover {  }
