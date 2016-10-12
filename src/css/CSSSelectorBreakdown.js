@@ -143,7 +143,7 @@ module.exports = {
     	if( this.htmlElements[str] ){
     		var basic = 'any <span style="color:#F92672">'+str+"</span> element ";
     		var desStr = (pse.length>0&&des.length>0) ? "and "+des : des;
-    		var attrStr = (pse.length>0||des.length>0) ? attr+"and " : attr;
+    		var attrStr = ((pse.length>0||des.length>0)&&attr.length>0) ? attr+"and " : attr;
     		return sib + basic + attrStr + pse + desStr;
     	
     	} else {
