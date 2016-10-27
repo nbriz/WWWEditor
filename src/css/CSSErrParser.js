@@ -74,8 +74,10 @@ module.exports = function( code, type ){
 	}
 
 	function confirmSel(s,key,iter){
+		var tag;
 		var xcept = ['h1','h2','h3','h4','h5','h6',"*"];
 		for( var p in pseudoDict ) xcept.push(p);
+
 
 		if( s[0]!=='.' && s[0]!=='#' && s[0]!=="@" ){
 			var idx = getIdxOfSpecialChar( s );
@@ -99,18 +101,17 @@ module.exports = function( code, type ){
 	}
 
 	function confirmSelector( key, iter, obj ){
-		var tag, tags;
 		var s = obj.selectorText;
 		var errObj, errObjs = [];
-		// check && see if it's a list of selectors or just one
-		if(s.indexOf(',')>=0) tags = s.split(',');
-		if( tags ){
-			for (var i = 0; i < tags.length; i++) {
-				var e = confirmSel( tags[i], key, iter );
+		// convert selector to array of "a, .test, div > p"
+		var list = s.split(',');
+		for (var i = 0; i < list.length; i++) {
+			// piece apart each individual part, ex: "a div > b" -- [a,div,b]
+			var pieces = list[i].split(/\s|\>/);
+			for (var p = 0; p < pieces.length; p++) {
+				var e = confirmSel( pieces[p], key, iter );
 				if( typeof e == "object" ) errObjs.push( e );
 			}
-		} else {
-			errObj = confirmSel( s, key, iter );
 		}
 
 		if( errObjs.length > 0 ) return errObjs[0];
