@@ -148,8 +148,6 @@ module.exports = function( self, event ){
 			},
 			add: function(l, t) {
 				if (this.inbody) this.remove();
-				// console.log(width,document.body.offsetWidth-10);
-				// if(l+width>=document.body.offsetWidth-10) l = 50;
 				this.element.style.left = l + "px";
 				this.element.style.top = t + "px";
 				document.body.appendChild(this.element);

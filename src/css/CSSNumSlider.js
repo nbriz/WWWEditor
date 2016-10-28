@@ -93,6 +93,7 @@ module.exports = function( self, mode, event ){
 	}
 
 	var removeListener = function (event) {
+		console.log('ran removal');
 		self.cssNumSlider.remove();
 		self.editor.undoSelection();
 		self.update();
@@ -209,7 +210,10 @@ module.exports = function( self, mode, event ){
 						document.body.removeChild(this.element);	
 						this.inbody = false;
 					} 				
-				}				
+				},
+				removeListener: function(){
+					removeListener();
+				}			
 			};
 			self.cssNumSlider.create();
 		//}

@@ -235,6 +235,8 @@ WWWEditor.prototype._createEditor = function( val ){
 			var clrpkr = self._CSSColorPicker(self,e);	// << this.CSSColorPicker is defined here
 			var mode = self.editor.getModeAt(self.editor.getCursor()).name;
 			if( !clrpkr && mode==="css" ){
+				// console.log(self.cssNumSlider.inbody);
+				if( self.cssNumSlider && self.cssNumSlider.inbody ) self.cssNumSlider.removeListener();
 				self._CSSNumSlider(self,mode,e);		// << this.cssNumSlider is defined here				
 			}	
 		});		

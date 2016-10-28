@@ -13,8 +13,8 @@ a+b.test > span {
 	color:red;
 }
 
-
-
+a > p.test {  }
+a#test {  }
 div, span, section {  }
 h1+h2 { }
 h1~h2 { }
