@@ -39,6 +39,15 @@ module.exports = function( code, type ){
 		return br;
 	}
 
+	function cleanUpArray( arr ){
+		// removes any [undefined] && [""] from array
+		var narr = [];
+		for (var i = 0; i < arr.length; i++) {
+			if( arr[i] && arr[i]!=="") narr.push( arr[i] );
+		}
+		return narr;
+	}
+
 	function getIdxOfSpecialChar( str ){ 
 		var idx = false;
 		var chars = ["[",'+','~',".",":"," "];
@@ -73,18 +82,17 @@ module.exports = function( code, type ){
 		}
 	}
 
-	function confirmSel(s,key,iter){
+	function confirmSel(ps,key,iter){
 		var tag;
 		var xcept = ['h1','h2','h3','h4','h5','h6',"*"];
 		for( var p in pseudoDict ) xcept.push(p);
 
-
-		if( s[0]!=='.' && s[0]!=='#' && s[0]!=="@" ){
-			var idx = getIdxOfSpecialChar( s );
+		if( ps[0]!=='.' && ps[0]!=='#' && ps[0]!=="@" ){
+			var idx = getIdxOfSpecialChar( ps );
 			if( idx ){
-				tag = s.substring(0,idx).trim();
+				tag = ps.substring(0,idx).trim();
 			} else {
-				tag = s.trim();
+				tag = ps.trim();
 			}
 		}
 		if( tag ){
@@ -93,7 +101,7 @@ module.exports = function( code, type ){
 				var m = '<span style="color:#F92672;font-weight:bold">'+tag+'</span>'+
 						' is not a valid type selector, because that isn\'t an actual HTML element.'+
 						' if this was meant to be a class or id selector don\'t forget the . or the #';
-				var l =  getLine( key, iter, s );
+				var l =  getLine( key, iter, ps );
 				return { message:m, line:l, html:m };
 			}
 		}
@@ -101,13 +109,14 @@ module.exports = function( code, type ){
 	}
 
 	function confirmSelector( key, iter, obj ){
-		var s = obj.selectorText;
+		var st = obj.selectorText;
 		var errObj, errObjs = [];
 		// convert selector to array of "a, .test, div > p"
-		var list = s.split(',');
+		var list = st.split(',');
 		for (var i = 0; i < list.length; i++) {
 			// piece apart each individual part, ex: "a div > b" -- [a,div,b]
-			var pieces = list[i].split(/\s|\>/);
+			var pieces = list[i].split(/\s|\>|\+|\~(?!=)/);
+			pieces = cleanUpArray(pieces);
 			for (var p = 0; p < pieces.length; p++) {
 				var e = confirmSel( pieces[p], key, iter );
 				if( typeof e == "object" ) errObjs.push( e );
@@ -120,20 +129,20 @@ module.exports = function( code, type ){
 	}
 
 	function confirmProperties( key, iter, obj ){
-		var s = obj.selectorText;
-		var sel = outline[key].str.indexOf( s );
+		var st = obj.selectorText;
+		var sel = outline[key].str.indexOf( st );
 		// hack ( selectorText will add spaces between + && ~ selectors, it also replaces " " w/ "*" when global ) 
 		// here's some kludgey accounting for that
 		if( sel == -1 ){
-			var adj = s.indexOf(" + ");
-			var gen = s.indexOf(" ~ ");
-			var glo = s.indexOf("*");
-			if( gen > 0) s = s.replace(/\s\~\s/g,"~");
-			if( adj > 0) s = s.replace(/\s\+\s/g,"+");
-			if( glo >=0) s = s.replace(/\*/g,"");
-			sel = outline[key].str.indexOf( s );
+			var adj = st.indexOf(" + ");
+			var gen = st.indexOf(" ~ ");
+			var glo = st.indexOf("*");
+			if( gen > 0) st = st.replace(/\s\~\s/g,"~");
+			if( adj > 0) st = st.replace(/\s\+\s/g,"+");
+			if( glo >=0) st = st.replace(/\*/g,"");
+			sel = outline[key].str.indexOf( st );
 		} 
-		var str = outline[key].str.substring( sel+s.length, outline[key].str.length );
+		var str = outline[key].str.substring( sel+st.length, outline[key].str.length );
 			str = str.trim();
 			str = str.substring( 1, str.indexOf('}'));
 			str = str.replace(/\t/g,'').replace(/\s/g,'').replace(/\n/g,'');
@@ -141,11 +150,11 @@ module.exports = function( code, type ){
 		for (var i = 0; i < strArr.length; i++) {
 			var strProp = strArr[i].substring( 0, strArr[i].indexOf(':') ).trim();
 			if( strProp!=="" && typeof cssDict[strProp]==="undefined" ){
-				var clr = (s[0]=="."|s[0]=="#") ? '#fff' : '#F92672';
+				var clr = (st[0]=="."|st[0]=="#") ? '#fff' : '#F92672';
 				var m = ' the <span style="color:#64d6eb;font-weight:bold">'+strProp+'</span>'+
-				' property in this <span style="color:'+clr+';font-weight:bold">'+s+'</span>'+
+				' property in this <span style="color:'+clr+';font-weight:bold">'+st+'</span>'+
 				' CSS rule isn\'t a valid CSS property. make sure you spelled it right';
-				var l =  getLine( key, iter, s ); 
+				var l =  getLine( key, iter, st ); 
 				return { message:m, line:l, html:m };
 			}
 		}
@@ -213,7 +222,6 @@ module.exports = function( code, type ){
 	} else {
 		throw new Error('CSSErrParser: type property must be either "html" or "css" ');
 	}
-	// console.log(outline);
 
 	var errors = [];
 
@@ -223,7 +231,6 @@ module.exports = function( code, type ){
 
 			var css = outline[key].str;
 			var lintObj = lint.verify( css );
-			// console.log( lintObj );
 
 			for (var i = 0; i < lintObj.messages.length; i++) {
 				if( lintObj.messages[i].type=="error" ){
@@ -251,7 +258,6 @@ module.exports = function( code, type ){
 			var brCnt = 0;
 			var num = errors[0].outline.num+1;
 			for (var j = 0; j < num; j++) {
-				// console.log( line,"+=",outline['html'+j].brs,"+",outline['css'+j].brs );
 				if( j==num-1)
 					line += outline['html'+j].brs;
 				else
