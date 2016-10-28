@@ -150,7 +150,7 @@ module.exports = {
     		attr += this._parseAttrSel(str);
     		str = str.substr(0,str.indexOf("["));
     	} else if( af && (af[0]=="." || af[0]=="#")){
-    		var tSel = this._getClassOrId(str[0]);
+    		var tSel = this._getClassOrId(af[0]);
     		var ci_name = af.substr(1,af.length); // class/id name w/out ./#
     		attr += 'with '+tSel+' attribute of <b>' + ci_name +" ";
     	}
@@ -158,11 +158,9 @@ module.exports = {
     	
     	// PUT ALL THE PIECES TOGETHER -----------------------------------------------------
     	if( this.htmlElements[str] ){
-    		console.log('attr:',this._strip(attr));
     		var basic = 'any <span style="color:#F92672">'+str+"</span> element ";
     		var desStr = (pse.length>0&&des.length>0) ? "and "+des : des;
     		var attrStr = ((pse.length>0||des.length>0)&&attr.length>0) ? attr+"and " : attr;
-    		console.log('attrStr:',this._strip(attrStr));
     		return sib + basic + attrStr + pse + desStr;
     	
     	} else {
@@ -171,7 +169,6 @@ module.exports = {
     },
 
 	getExplanation: function( arr ){
-		console.log(arr);
 		// Array [ "a", ".test", " >", " p", ".fart" ]
 
 
@@ -229,8 +226,6 @@ module.exports = {
 		// construct the explination  
 		for (i = arr.length-1; i >= 0; i--) {
 
-			console.log(i, arr[i] );
-
 			// spot pseudo elements
 			if( arr[i].indexOf("::")>=0 ){
 				var pe = arr[i].substr(arr[i].indexOf("::"),arr[i].length);				
@@ -276,9 +271,6 @@ module.exports = {
 					content += this._getElementCnt(arr,i);
 				} 
 			}
-
-			console.log(this._strip(content));
-
 
 		}
 

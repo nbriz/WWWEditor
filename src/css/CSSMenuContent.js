@@ -115,7 +115,7 @@ module.exports = function( self ){
 
 	else if( type=="selector"){
 
-		var pieces = word.split(/(?=\.)|(?=\s\>\s)|(?=\+)|(?=\+)|(?=\~[^=])|(?=\s)|(?=\.)/);
+		var pieces = word.split(/(?=\.)|(?=\s\>\s)|(?=\+)|(?=\+)|(?=\~[^=])|(?=\s)|(?=\.)|(?=\#)/);
 		
 		content = cssSelectorBreakdown.getExplanation( pieces ); // should be content 
 		
