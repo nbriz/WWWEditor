@@ -50,7 +50,7 @@ module.exports = function( code, type ){
 
 	function getIdxOfSpecialChar( str ){ 
 		var idx = false;
-		var chars = ["[",'+','~',".",":"," "];
+		var chars = ["[",'+','~',".","#",":"," "];
 		for (var c = 0; c < chars.length; c++) {
 			if( str.indexOf(chars[c])>=0 ){
 				idx = str.indexOf(chars[c]);
