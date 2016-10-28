@@ -63,6 +63,12 @@ module.exports = {
     	else return false;
     },
 
+    _strip: function(html){ // FOR DEBUG ONLY-------------- consloe.log(strip())
+	   var tmp = document.createElement("DIV");
+	   tmp.innerHTML = html;
+	   return tmp.textContent || tmp.innerText || "";
+	},
+
     _parseAttrSel: function(str){
     	var sel = str.substr(str.indexOf('[')+1,str.indexOf(']')-str.indexOf('[')-1);
     	var p, a, v;
@@ -94,6 +100,13 @@ module.exports = {
 		return v;
     },
 
+    _getClassOrId: function( str0 ){
+    	var classSel = 'a <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">class</a>';
+		var idSel = 'an <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">id</a>';
+		var tSel = (str0==".") ? classSel : idSel;
+		return tSel;
+    },
+
     _getElementCnt: function( arr, i ){
 
     	var str = arr[i];
@@ -110,7 +123,7 @@ module.exports = {
 		
 		// if starts w/a space ( child / descendant )    	
     	if( str[0]==" " && b4 ){
-    		if( b4==">" ) des += 'which is a <a href="http://netart.rocks/notes/cssoverview#relative-selectors" target="_blank" style="color: #dad06f">child</a> of ';
+    		if( b4==">" || b4==" >" ) des += 'which is a <a href="http://netart.rocks/notes/cssoverview#relative-selectors" target="_blank" style="color: #dad06f">child</a> of ';
     		else des += 'which is a <a href="http://netart.rocks/notes/cssoverview#relative-selectors" target="_blank" style="color: #dad06f">descendant</a> of ';
     		str = str.substr(1,str.length);
     	}
@@ -136,14 +149,20 @@ module.exports = {
     	if( str.indexOf("[")>=0 ) {
     		attr += this._parseAttrSel(str);
     		str = str.substr(0,str.indexOf("["));
+    	} else if( af && (af[0]=="." || af[0]=="#")){
+    		var tSel = this._getClassOrId(str[0]);
+    		var ci_name = af.substr(1,af.length); // class/id name w/out ./#
+    		attr += 'with '+tSel+' attribute of <b>' + ci_name +" ";
     	}
 
     	
     	// PUT ALL THE PIECES TOGETHER -----------------------------------------------------
     	if( this.htmlElements[str] ){
+    		console.log('attr:',this._strip(attr));
     		var basic = 'any <span style="color:#F92672">'+str+"</span> element ";
     		var desStr = (pse.length>0&&des.length>0) ? "and "+des : des;
     		var attrStr = ((pse.length>0||des.length>0)&&attr.length>0) ? attr+"and " : attr;
+    		console.log('attrStr:',this._strip(attrStr));
     		return sib + basic + attrStr + pse + desStr;
     	
     	} else {
@@ -152,6 +171,10 @@ module.exports = {
     },
 
 	getExplanation: function( arr ){
+		console.log(arr);
+		// Array [ "a", ".test", " >", " p", ".fart" ]
+
+
 		// example arr ( Array )
 		// .big.red 			>> [ ".big", ".red" ]
 		// body > p 			>> [ "body", " >", " p" ]
@@ -175,6 +198,7 @@ module.exports = {
 		}
 		
 		// content = "read from right to left, this selector:<br><br>";
+
 		content = "";
 
 		// style selector header w/the right colors 
@@ -201,33 +225,34 @@ module.exports = {
 		content += "<br><br>";
 		content += "<i>read from right to left, this selector applies the declared rules to...</i><br><br> ";
 
-		var classSel = 'a <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">class</a>';
-		var idSel = 'an <a href="http://netart.rocks/notes/cssoverview#css-rules" target="_blank" style="color: #dad06f">id</a>';
-		var tSel = classSel;
 
 		// construct the explination  
 		for (i = arr.length-1; i >= 0; i--) {
+
+			console.log(i, arr[i] );
 
 			// spot pseudo elements
 			if( arr[i].indexOf("::")>=0 ){
 				var pe = arr[i].substr(arr[i].indexOf("::"),arr[i].length);				
 				if( !this[pe] ) console.warn('CSSSelectorBreakdown: '+pe+' isn\'t in the pseudo-elements dictionary, wtf?');
 				else {
-					content +=  '<a href="'+this.cssPseudoElements[pe].url+'" target="_blank" style="color: #dad06f">'+
-					this[pe]+'</a>';
+					// TODO :::::::::::
+					// content +=  '<a href="'+this.cssPseudoElements[pe].url+'" target="_blank" style="color: #dad06f">'+
+					// this[pe]+'</a>';
+					content += "[ WOOPS ERROR! sorry still working on pseudo elements, in the meantime checkout "+
+					'<a href="'+this.cssPseudoElements[pe].url+'" target="_blank" style="color: #dad06f">'+pe+'</a> ] ';
 				}
 			}
 
-			// TODO:::: tags also gotta pick up priorClass
 
 			// spot class && id selector 
-			if( arr[i][0]=="." ||  arr[i][0]=="#" ){				
-				tSel = (arr[i][0]==".") ? classSel : idSel;
-				if( arr[i-1] && (arr[i][0]=="."|| arr[i][0]=="#") ){
-					var begin = (this._getElementCnt(arr,i-1)) ? this._getElementCnt(arr,i-1) : "any element ";
-					priorClass = begin + 'with '+tSel+' attribute of <b>' + 
-						arr[i].substr(1,arr[i].length)+
-						'</b> <a href="http://netart.rocks/notes/cssoverview#and-selectors" target="_blank" style="color: #dad06f">AND</a> ';
+			if( arr[i][0]=="." || arr[i][0]=="#" ){				
+				var tSel = this._getClassOrId(arr[i][0]);
+				if( arr[i-1] ){
+					var begin = (this._getElementCnt(arr,i-1)) ? this._getElementCnt(arr,i-1) : 
+						"any element with "+tSel+' attribute of <b>' + arr[i].substr(1,arr[i].length);
+					priorClass = begin + '</b> <a href="http://netart.rocks/notes/cssoverview#and-selectors" target="_blank" style="color: #dad06f">AND</a> ';
+					
 				} else {
 					if( priorClass ) {
 						content += priorClass;
@@ -240,6 +265,7 @@ module.exports = {
 				}
 			}
 
+
 			// spot type selectors
 			if( this._getElementCnt(arr,i) ){
 				if( priorClass ) {
@@ -250,6 +276,8 @@ module.exports = {
 					content += this._getElementCnt(arr,i);
 				} 
 			}
+
+			console.log(this._strip(content));
 
 
 		}
